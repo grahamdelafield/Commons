@@ -1,4 +1,6 @@
 pandas
+numpy
 venn
 upsetplot
 matplotlib
+pyteomics
