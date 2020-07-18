@@ -19,7 +19,12 @@ class mzXML:
            file of all precursors identified in mzxml object."""
 
         path = self._file_path.split(".")[0]  + "precursors.csv"
-        df = pd.DataFrame(precursor_list)
+        if isinstance(precursor_list, list):
+            df = pd.DataFrame(precursor_list)
+        elif isinstance(precursor_list, dict):
+            keys = list(precursor_list.keys())
+            vals = list(precursor_list.values())
+            df = pd.DataFrame({"mass":keys, "int":vals})
         df.to_csv(path, index=False, header=False)
         print(f"...precursors.csv file created in {path}")
         return
@@ -27,7 +32,7 @@ class mzXML:
     def get_tree(self):
         return auxiliary.print_tree(next(self.data))
 
-    def get_precursors(self, decimals=3):
+    def get_precursors(self, decimals=3, by=None):
         """function to pull all recognized precursor m/z
            values with more than 1 fragment.
            
@@ -37,6 +42,7 @@ class mzXML:
            precursor mass"""
 
         precursors = []
+        intensities = []
 
         for x in self.data:
             if x["msLevel"] == 2:
@@ -45,8 +51,15 @@ class mzXML:
                 if len(frags) > 1:
                     precursor = x["precursorMz"][0]["precursorMz"]
                     precursor = np.round(precursor, decimals)
+                    intensity = x["precursorMz"][0]["precursorIntensity"]
                     precursors.append(precursor)
+                    intensities.append(intensity)
         print(f"{len(set(precursors))} precursors collected from {self._file_path}")
-        
-        self._precursor_to_csv(sorted(list(set(precursors))))
+        if by == None:
+            precursors = sorted(list(set(precursors)))
+            self._precursor_to_csv(precursors)
+        elif by == "Intensity":
+            d = dict(zip(precursors, intensities))
+            d = dict(sorted(d.items(), key=lambda x: x[1], reverse=True))
+            self._precursor_to_csv(d)
         return
