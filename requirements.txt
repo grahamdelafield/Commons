@@ -4,3 +4,4 @@ venn
 upsetplot
 matplotlib
 pyteomics
+lxml
