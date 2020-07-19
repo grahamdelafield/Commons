@@ -18,14 +18,20 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn')
 
 
-def get_files(directory="."):
+def get_files(directory=".", exts=["-peptides.csv"]):
     all_files = []
     for root, dirs, files in os.walk(directory, topdown=True):
         for name in files:
             file_path = os.path.join(root, name)
-            if file_path.endswith("-peptides.csv"):
-                all_files.append(file_path)
+            for ext in exts:
+                if file_path.endswith(ext):
+                    all_files.append(file_path)
     return all_files
+
+def file_root(filename):
+    filename = filename.split("\\")[:-1]
+    filename = "\\".join(filename)
+    return filename
 
 
 def p_diff(v1, v2):
@@ -46,32 +52,35 @@ class peaks_group:
         self.protein_dict = {}
         self.total_proteins = []
         self.unique_proteins = []
+        self.prot_cov = []
+
+        self.peptide_files = [f for f in self.files if f.endswith("-peptides.csv")]
+        self.protein_files = [f for f in self.files if f.endswith("proteins.csv")]
         
         self._name_files()
         self._get_peptides()
         self._get_proteins()
         self._write_results()
+        self._get_coverage()
 
     def __str__(self):
         files = "\n".join(self.files)
         return f'PEAKS group {self.name} comprised of the files:\n{files}'
 
     def _name_files(self):
-        labels = []
-        i = 0
-        while i < len(self.files):
-            label = input("Please provide a name for the sample "+self.files[i]+"\t")
-            labels.append(label)
-            i += 1
+        labels = {}
+        for _, file in enumerate(self.files):
+            root = "\\".join(file.split("\\")[:-1])
+            if root not in labels:
+                labels[root] = labels.get(root, input(f"Provide label for {root}"))
         self.labels = labels
-        return 
+        return  
 
     def _get_peptides(self):
-        file_list = self.files
-        label_list = self.labels
-        for i in range(len(file_list)):
-            file = file_list[i]
-            label = label_list[i]
+        file_list = self.peptide_files
+        labels = self.labels
+        for file in file_list:
+            label = labels[file_root(file)]
             df = pd.read_csv(file)
             peptides = df.Peptide.tolist()
             self.total_peptides.append(len(peptides))
@@ -84,12 +93,12 @@ class peaks_group:
         print("Unique peptides evaluated.")
         print("Peptide dict initialized.\n")
 
+
     def _get_proteins(self):
-        file_list = self.files
-        label_list = self.labels
-        for i in range(len(file_list)):
-            file = file_list[i]
-            label = label_list[i]
+        file_list = self.peptide_files
+        labels = self.labels
+        for file in file_list:
+            label = labels[file_root(file)]
             df = pd.read_csv(file)
             total_prot = df["Protein Accession"].tolist()
             df = df[df.Unique == "Y"].drop_duplicates(subset="Protein Accession")
@@ -102,22 +111,33 @@ class peaks_group:
         print("Unique peptides evaluated.")
         print("Protein dict initialized.")
 
+    def _get_coverage(self):
+        file_list = self.protein_files
+        labels = self.labels
+        for file in file_list:
+            df = pd.read_csv(file)
+            cov = df["Coverage (%)"]
+            self.prot_cov.append(cov)
+        return
+
+
     def _write_results(self):
         with open("PEAKS_compare_output.txt", "w") as f:
             f.write("Total peptides identified:" + "\n")
-            for sample, num in zip(self.labels, self.total_peptides):
+            labels = list(self.labels.values())
+            for sample, num in zip(labels, self.total_peptides):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Unique peptides identified:" + "\n")
-            for sample, num in zip(self.labels, self.unique_peptides):
+            for sample, num in zip(labels, self.unique_peptides):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Total proteins identified:" + "\n")
-            for sample, num in zip(self.labels, self.total_proteins):
+            for sample, num in zip(labels, self.total_proteins):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Unique proteins identified:" + "\n")
-            for sample, num in zip(self.labels, self.unique_proteins):
+            for sample, num in zip(labels, self.unique_proteins):
                 f.write(str(sample)+": "+str(num)+"\n")
         print("Results file created.")
 
