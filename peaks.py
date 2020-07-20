@@ -68,19 +68,21 @@ class peaks_group:
         return f'PEAKS group {self.name} comprised of the files:\n{files}'
 
     def _name_files(self):
-        labels = {}
+        d = {}
+        labels = []
         for _, file in enumerate(self.files):
             root = "\\".join(file.split("\\")[:-1])
-            if root not in labels:
-                labels[root] = labels.get(root, input(f"Provide label for {root}"))
-        self.labels = labels
+            if root not in d:
+                name = input(f"Provide label for {root}")
+                d[root] = d.get(root, name)
+                self.labels.append(name)
         return  
 
     def _get_peptides(self):
         file_list = self.peptide_files
         labels = self.labels
-        for file in file_list:
-            label = labels[file_root(file)]
+        for i, file in enumerate(file_list):
+            label = labels[i]
             df = pd.read_csv(file)
             peptides = df.Peptide.tolist()
             self.total_peptides.append(len(peptides))
@@ -97,8 +99,8 @@ class peaks_group:
     def _get_proteins(self):
         file_list = self.peptide_files
         labels = self.labels
-        for file in file_list:
-            label = labels[file_root(file)]
+        for i, file in enumerate(file_list):
+            label = labels[i]
             df = pd.read_csv(file)
             total_prot = df["Protein Accession"].tolist()
             df = df[df.Unique == "Y"].drop_duplicates(subset="Protein Accession")
@@ -113,10 +115,9 @@ class peaks_group:
 
     def _get_coverage(self):
         file_list = self.protein_files
-        labels = self.labels
         for file in file_list:
             df = pd.read_csv(file)
-            cov = df["Coverage (%)"]
+            cov = df["Coverage (%)"].values[0]
             self.prot_cov.append(cov)
         return
 
@@ -124,7 +125,7 @@ class peaks_group:
     def _write_results(self):
         with open("PEAKS_compare_output.txt", "w") as f:
             f.write("Total peptides identified:" + "\n")
-            labels = list(self.labels.values())
+            labels = self.labels
             for sample, num in zip(labels, self.total_peptides):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
@@ -226,10 +227,11 @@ class peaks_group:
         fig, ax = plt.subplots(figsize=(20, 6))
         colors = [plt.cm.viridis(i/float(len(self.labels)-1)) for i in range(len(self.labels))]
 
+
         for i in range(len(self.labels)):
             binned = {}
             observed_mz = []
-            df = pd.read_csv(self.files[i])
+            df = pd.read_csv(self.peptide_files[i])
             mz = df["m/z"].tolist()
             observed_mz.append(mz)
             observed_mz = list(set(mz))
@@ -263,7 +265,7 @@ class peaks_group:
         for i in range(len(self.labels)):
             binned = {}
             observed_mz = []
-            df = pd.read_csv(self.files[i])
+            df = pd.read_csv(self.peptide_files[i])
             mz = df["m/z"].tolist()
             observed_mz.append(mz)
 
@@ -296,8 +298,8 @@ class peaks_group:
 
     def plot_retention(self, save=False):
         hists = []
-        for i in range(len(self.files)):
-            file = self.files[i]
+        for i in range(len(self.peptide_files)):
+            file = self.peptide_files[i]
             df = pd.read_csv(file)
             rt = df.RT.tolist()
 
@@ -370,6 +372,21 @@ class peaks_group:
         if save:
             plt.savefig("RetentionOverlay.svg")
             plt.savefig("RetentionOverlay.png")
+
+    def plot_coverage(self, save=False):
+        fig, ax = plt.subplots(figsize=(10, 5))
+        plot_df = pd.DataFrame({"Unique Peptides": self.unique_peptides,
+                                "Coverage":self.prot_cov}, 
+                                index=self.labels)            
+        plot_df["Coverage"].plot(secondary_y=True, kind="line", color="k", ax=ax, rot=0)
+        # plot_df["Coverage"].plot(secondary_y=True, kind="scatter", color="k", ax=ax, rot=0)
+        plt.grid(visible=False)
+        plot_df[["Unique Peptides"]].plot.bar(ax=ax, rot=0)
+        ax.legend(bbox_to_anchor=[1.2, 1])
+        if save:
+            plt.savefig("ProteinCoverage.png")
+            plt.savefig("ProtienCoverage.svg")
+
 
     def plot_all(self, flag=False):
         self.plot_peptides(save=flag)
