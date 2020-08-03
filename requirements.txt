@@ -5,3 +5,4 @@ upsetplot
 matplotlib
 pyteomics
 lxml
+openpyxl
