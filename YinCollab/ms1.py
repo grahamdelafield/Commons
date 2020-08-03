@@ -42,13 +42,17 @@ class PeakListFile:
         # remove minor peaks                                      
         data = data[data['%Area'] > 10]
         # get base file name
-        base = ntpath.basename(self.filename).split('.')[0]
-        data['Sample'] = [base for i in id_names]        
+        basename = ntpath.basename(self.filename).split('.')[0]
+        base = basename[:-1]
+        data['Sample'] = [base for i in id_names]
+        # use last letter of basename as fraction identifier
+        fraction = basename[-1]
+        data['Fraction'] = [fraction for i in id_names]
         # set run identifier
         data['Run'] = ['run' + sheet[-1] for i in id_names]
         # set peak identification
         data['Identity'] = id_names
-        data = data[['Sample', 'Run', 'Identity', 'Area', 'Apex RT']]
+        data = data[['Sample', 'Fraction', 'Run', 'Identity', 'Area', 'Apex RT']]
         return data
 
     def _compare_peaks(self, dataframe, standard, std_conc):
