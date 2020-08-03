@@ -18,14 +18,20 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn')
 
 
-def get_files(directory="."):
+def get_files(directory=".", exts=["-peptides.csv"]):
     all_files = []
     for root, dirs, files in os.walk(directory, topdown=True):
         for name in files:
             file_path = os.path.join(root, name)
-            if file_path.endswith("-peptides.csv"):
-                all_files.append(file_path)
+            for ext in exts:
+                if file_path.endswith(ext):
+                    all_files.append(file_path)
     return all_files
+
+def file_root(filename):
+    filename = filename.split("\\")[:-1]
+    filename = "\\".join(filename)
+    return filename
 
 
 def p_diff(v1, v2):
@@ -46,32 +52,37 @@ class peaks_group:
         self.protein_dict = {}
         self.total_proteins = []
         self.unique_proteins = []
+        self.prot_cov = []
+
+        self.peptide_files = [f for f in self.files if f.endswith("-peptides.csv")]
+        self.protein_files = [f for f in self.files if f.endswith("proteins.csv")]
         
         self._name_files()
         self._get_peptides()
         self._get_proteins()
         self._write_results()
+        self._get_coverage()
 
     def __str__(self):
         files = "\n".join(self.files)
         return f'PEAKS group {self.name} comprised of the files:\n{files}'
 
     def _name_files(self):
+        d = {}
         labels = []
-        i = 0
-        while i < len(self.files):
-            label = input("Please provide a name for the sample "+self.files[i]+"\t")
-            labels.append(label)
-            i += 1
-        self.labels = labels
-        return 
+        for _, file in enumerate(self.files):
+            root = "\\".join(file.split("\\")[:-1])
+            if root not in d:
+                name = input(f"Provide label for {root}")
+                d[root] = d.get(root, name)
+                self.labels.append(name)
+        return  
 
     def _get_peptides(self):
-        file_list = self.files
-        label_list = self.labels
-        for i in range(len(file_list)):
-            file = file_list[i]
-            label = label_list[i]
+        file_list = self.peptide_files
+        labels = self.labels
+        for i, file in enumerate(file_list):
+            label = labels[i]
             df = pd.read_csv(file)
             peptides = df.Peptide.tolist()
             self.total_peptides.append(len(peptides))
@@ -84,12 +95,12 @@ class peaks_group:
         print("Unique peptides evaluated.")
         print("Peptide dict initialized.\n")
 
+
     def _get_proteins(self):
-        file_list = self.files
-        label_list = self.labels
-        for i in range(len(file_list)):
-            file = file_list[i]
-            label = label_list[i]
+        file_list = self.peptide_files
+        labels = self.labels
+        for i, file in enumerate(file_list):
+            label = labels[i]
             df = pd.read_csv(file)
             total_prot = df["Protein Accession"].tolist()
             df = df[df.Unique == "Y"].drop_duplicates(subset="Protein Accession")
@@ -102,22 +113,32 @@ class peaks_group:
         print("Unique peptides evaluated.")
         print("Protein dict initialized.")
 
+    def _get_coverage(self):
+        file_list = self.protein_files
+        for file in file_list:
+            df = pd.read_csv(file)
+            cov = df["Coverage (%)"].values[0]
+            self.prot_cov.append(cov)
+        return
+
+
     def _write_results(self):
         with open("PEAKS_compare_output.txt", "w") as f:
             f.write("Total peptides identified:" + "\n")
-            for sample, num in zip(self.labels, self.total_peptides):
+            labels = self.labels
+            for sample, num in zip(labels, self.total_peptides):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Unique peptides identified:" + "\n")
-            for sample, num in zip(self.labels, self.unique_peptides):
+            for sample, num in zip(labels, self.unique_peptides):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Total proteins identified:" + "\n")
-            for sample, num in zip(self.labels, self.total_proteins):
+            for sample, num in zip(labels, self.total_proteins):
                 f.write(str(sample)+": "+str(num)+"\n")
             f.write("\n")
             f.write("Unique proteins identified:" + "\n")
-            for sample, num in zip(self.labels, self.unique_proteins):
+            for sample, num in zip(labels, self.unique_proteins):
                 f.write(str(sample)+": "+str(num)+"\n")
         print("Results file created.")
 
@@ -206,10 +227,11 @@ class peaks_group:
         fig, ax = plt.subplots(figsize=(20, 6))
         colors = [plt.cm.viridis(i/float(len(self.labels)-1)) for i in range(len(self.labels))]
 
+
         for i in range(len(self.labels)):
             binned = {}
             observed_mz = []
-            df = pd.read_csv(self.files[i])
+            df = pd.read_csv(self.peptide_files[i])
             mz = df["m/z"].tolist()
             observed_mz.append(mz)
             observed_mz = list(set(mz))
@@ -243,7 +265,7 @@ class peaks_group:
         for i in range(len(self.labels)):
             binned = {}
             observed_mz = []
-            df = pd.read_csv(self.files[i])
+            df = pd.read_csv(self.peptide_files[i])
             mz = df["m/z"].tolist()
             observed_mz.append(mz)
 
@@ -276,8 +298,8 @@ class peaks_group:
 
     def plot_retention(self, save=False):
         hists = []
-        for i in range(len(self.files)):
-            file = self.files[i]
+        for i in range(len(self.peptide_files)):
+            file = self.peptide_files[i]
             df = pd.read_csv(file)
             rt = df.RT.tolist()
 
@@ -350,6 +372,21 @@ class peaks_group:
         if save:
             plt.savefig("RetentionOverlay.svg")
             plt.savefig("RetentionOverlay.png")
+
+    def plot_coverage(self, save=False):
+        fig, ax = plt.subplots(figsize=(10, 5))
+        plot_df = pd.DataFrame({"Unique Peptides": self.unique_peptides,
+                                "Coverage":self.prot_cov}, 
+                                index=self.labels)            
+        plot_df["Coverage"].plot(secondary_y=True, kind="line", color="k", ax=ax, rot=0)
+        # plot_df["Coverage"].plot(secondary_y=True, kind="scatter", color="k", ax=ax, rot=0)
+        plt.grid(visible=False)
+        plot_df[["Unique Peptides"]].plot.bar(ax=ax, rot=0)
+        ax.legend(bbox_to_anchor=[1.2, 1])
+        if save:
+            plt.savefig("ProteinCoverage.png")
+            plt.savefig("ProtienCoverage.svg")
+
 
     def plot_all(self, flag=False):
         self.plot_peptides(save=flag)
