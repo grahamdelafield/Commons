@@ -33,26 +33,29 @@ class PeakListFile:
         pass
         return
 
-    def _read_sheet(self, id_names, sheet='Sheet1'):
+    def _read_sheet(self, id_names, sheet='Sheet1', cutoff=10):
         if self.header:
             data = pd.read_excel(self.filename, sheet_name=sheet,
                                       skiprows=range(0,4))
         else:
             data = pd.read_excel(self.filename, sheet_name=sheet)
-        # remove minor peaks                                      
-        data = data[data['%Area'] > 10]
-        # get base file name
-        basename = ntpath.basename(self.filename).split('.')[0]
+                                              
+        data = data[data['%Area'] > cutoff]                                          # remove minor peaks
+        err_text = f'''Incorrect number of peaks in sheet {sheet}.
+                     Check peak area cutoff'''
+        assert len(data) == len(id_names), err_text     
+        basename = ntpath.basename(self.filename).split('.')[0]                     # get base file name
         base = basename[:-1]
         data['Sample'] = [base for i in id_names]
-        # use last letter of basename as fraction identifier
-        fraction = basename[-1]
+
+        fraction = basename[-1]                                                     # use last letter of basename as fraction identifier
         data['Fraction'] = [fraction for i in id_names]
-        # set run identifier
-        data['Run'] = ['run' + sheet[-1] for i in id_names]
-        # set peak identification
-        data['Identity'] = id_names
-        data = data[['Sample', 'Fraction', 'Run', 'Identity', 'Area', 'Apex RT']]
+
+        data['Run'] = ['run' + sheet[-1] for i in id_names]                         # set run identifier
+
+        data['Identity'] = id_names                                                 # set peak identification
+        data = data[['Sample', 'Fraction', 'Run', 'Identity',
+                     'Area', 'Apex RT']]
         return data
 
     def _compare_peaks(self, dataframe, standard, std_conc):
@@ -63,17 +66,19 @@ class PeakListFile:
         return data
         
 
-    def combine_sheets(self, id_names, standard, std_conc):
+    def combine_sheets(self, id_names, standard, std_conc, cutoff=10):
         xl = pd.ExcelFile(self.filename)
         df = pd.DataFrame()
+
         for sheet in xl.sheet_names:
-            data = self._read_sheet(id_names, sheet=sheet)
+            data = self._read_sheet(id_names, sheet=sheet, cutoff=cutoff)
             data = self._compare_peaks(data, standard, std_conc)
             if df.empty:
                 df = data
             else:
                 df = pd.concat([df, data])
         self.data = df
+        print("combine complete")
         return
 
     def correct_dilution(self, standard, dil_factor):
