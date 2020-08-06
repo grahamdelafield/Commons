@@ -1,7 +1,7 @@
 '''
 The following code is an OOP arrangement for working with
 PEAKS DB result files. The following representations are
-intended to employt the proteins-peptides result files after
+intended to employ the proteins-peptides result files after
 database searching. 
 
 Further functionality may be developed upon interest.
