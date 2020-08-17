@@ -101,34 +101,54 @@ class PeaksGroup:
         return df
 
 
-    def plot_peptides(self):
+    def plot_peptides(self, save=False):
         '''
         Plot barchart of total and unique peptides.
         '''
 
         df = self._compile_dataframe('peptides')
         bars = alt.Chart(df).mark_bar().encode(
-            x='Type:O', y='Value:Q',
+            x=alt.X('Type:O', title=None), 
+            y=alt.Y('Value:Q', title='Peptide Count'),
             color='Type:O', column='Sample:O'
+        ).properties(
+            title="Total and Unique Peptides"
         )
+
+        if save:
+            bars.save("Peptide_Bar.png", scale_factor=10)
+            bars.save("Peptide_Bar.svg", scale_factor=10)
+            return
 
         return bars
 
   
-    def plot_proteins(self):
+    def plot_proteins(self, save=False):
         '''
         Plot barchart of total and unique proteins.
         '''
 
         df = self._compile_dataframe('proteins')
         bars = alt.Chart(df).mark_bar().encode(
-            x='Type:O', y='Value:Q',
+            x=alt.X('Type:O', title=None), 
+            y=alt.Y('Value:Q', title='Protein Count'),
             color='Type:O', column='Sample:O'
+        ).properties(
+            title="Total and Unique Proteins"
         )
+
+        if save:
+            bars.save("Protein_Bar.png", scale_factor=10)
+            bars.save("Protien_Bar.svg", scale_factor=10)
+            return
 
         return bars
 
-    def plot_overlay_dist(self):
+    def plot_overlay_dist(self, save=False):
+        '''
+        Plot overlayed lines showing binned m/z values for identified
+        peptides.
+        '''
         df = pd.DataFrame()
         for i, file in enumerate(self.files):
             bins = {}
@@ -150,13 +170,21 @@ class PeaksGroup:
         ).properties(
             width=800
         )
-
-        lines.save('Testoutput.png', scale_factor=15)
+        if save:
+            lines.save('OverlayDist_Line.png', scale_factor=15)
+            lines.save('OverlayDist_Line.svg', scale_factor=15)
+            return
         return lines
 
+    def plot_all(self, save=False):
+        self.plot_peptides(save=save)
+        self.plot_proteins(save=save)
+        self.plot_overlay_dist(save=save)
 
 if __name__=='__main__':
     files = get_files()
     p = PeaksGroup(files)
+    # p.plot_all(save=True)
+    p.plot_proteins(save=True)
     
 
