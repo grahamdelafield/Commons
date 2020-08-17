@@ -36,8 +36,6 @@ class PeaksGroup:
         self._get_proteins()
 
 
-        
-
     def __repr__(self):
         files = '\n'.join(self.files)
         return f'PEAKS group comprised of the files:\n{files}'
@@ -117,8 +115,8 @@ class PeaksGroup:
         ).configure_title(anchor='middle')
 
         if save:
-            bars.save("Peptide_Bar.png", scale_factor=10)
-            bars.save("Peptide_Bar.svg", scale_factor=10)
+            bars.save('Peptide_Bar.png', scale_factor=10)
+            bars.save('Peptide_Bar.svg', scale_factor=10)
             return
 
         return bars
@@ -131,17 +129,17 @@ class PeaksGroup:
 
         df = self._compile_dataframe('proteins')
         bars = alt.Chart(
-            df, title="Total and Unique Proteins"
+            df, title='Total and Unique Proteins'
         ).mark_bar().encode(
             x=alt.X('Type:O', title=None), 
             y=alt.Y('Value:Q', title='Protein Count'),
             column=alt.Column('Sample:O', title=None),
             color='Type:O', 
-        ).configure_title(anchor="middle")
+        ).configure_title(anchor='middle')
 
         if save:
-            bars.save("Protein_Bar.png", scale_factor=10)
-            bars.save("Protien_Bar.svg", scale_factor=10)
+            bars.save('Protein_Bar.png', scale_factor=10)
+            bars.save('Protien_Bar.svg', scale_factor=10)
             return
 
         return bars
