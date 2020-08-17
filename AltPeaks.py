@@ -186,7 +186,6 @@ class PeaksGroup:
 if __name__=='__main__':
     files = get_files()
     p = PeaksGroup(files)
-    # p.plot_all(save=True)
     p.plot_proteins(save=True)
 
 
