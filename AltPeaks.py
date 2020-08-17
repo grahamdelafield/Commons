@@ -7,7 +7,7 @@ from venn import venn, pseudovenn
 
 def get_files(directory='.', exts=['-peptides.csv']):
     all_files = []
-    for root, dirs, files in os.walk(directory, topdown=True):
+    for root, _, files in os.walk(directory, topdown=True):
         for name in files:
             file_path = os.path.join(root, name)
             for ext in exts:
@@ -107,13 +107,14 @@ class PeaksGroup:
         '''
 
         df = self._compile_dataframe('peptides')
-        bars = alt.Chart(df).mark_bar().encode(
+        bars = alt.Chart(
+            df
+        ).mark_bar().encode(
             x=alt.X('Type:O', title=None), 
             y=alt.Y('Value:Q', title='Peptide Count'),
-            color='Type:O', column='Sample:O'
-        ).properties(
-            title="Total and Unique Peptides"
-        )
+            column=alt.Column('Sample:O', title=None),
+            color='Type:O'
+        ).configure_title(anchor='middle')
 
         if save:
             bars.save("Peptide_Bar.png", scale_factor=10)
@@ -129,13 +130,14 @@ class PeaksGroup:
         '''
 
         df = self._compile_dataframe('proteins')
-        bars = alt.Chart(df).mark_bar().encode(
+        bars = alt.Chart(
+            df, title="Total and Unique Proteins"
+        ).mark_bar().encode(
             x=alt.X('Type:O', title=None), 
             y=alt.Y('Value:Q', title='Protein Count'),
-            color='Type:O', column='Sample:O'
-        ).properties(
-            title="Total and Unique Proteins"
-        )
+            column=alt.Column('Sample:O', title=None),
+            color='Type:O', 
+        ).configure_title(anchor="middle")
 
         if save:
             bars.save("Protein_Bar.png", scale_factor=10)
@@ -186,5 +188,5 @@ if __name__=='__main__':
     p = PeaksGroup(files)
     # p.plot_all(save=True)
     p.plot_proteins(save=True)
-    
+
 
