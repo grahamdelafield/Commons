@@ -6,6 +6,22 @@ import pandas as pd
 class By_File:
     """
     A class representing an input Byonic File.
+
+    Functions built enable, combining multiple bf files,
+    renaming columns in byonic files, cleaning the peptide sequence,
+    determining glycosites, filtering results, and pulling total/unique
+    glycopeptides.
+
+    Typical usage:
+        bf = By_File(data)
+        bf.fill_no_glycans()
+        bf.remove_reverse()
+        bf.determine_glycosites()
+        bf.filter_hits(modify=?)
+        bf.rame = bf.reduce_frame(gp_only=?)
+        total = bf.total_gp()
+        unique = bf.unique_gp()
+    
     """
 
     def __init__(self, file_input):
