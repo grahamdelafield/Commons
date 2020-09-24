@@ -6,3 +6,4 @@ matplotlib
 pyteomics
 lxml
 openpyxl
+altair_saver
