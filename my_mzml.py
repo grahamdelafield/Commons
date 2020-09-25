@@ -81,3 +81,10 @@ class mzXML:
             d = dict(sorted(d.items(), key=lambda x: x[1], reverse=True))
             self._precursor_to_csv(d)
         return
+
+    def ms1_search(self):
+        pass
+    
+    def ms2_search(self):
+        pass
+    
