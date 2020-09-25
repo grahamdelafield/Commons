@@ -1,7 +1,8 @@
 from pyteomics import mzml, mzxml, auxiliary
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
+plt.rcParams['axes.formatter.useoffset'] = False
 
 class mzXML:
     """Class representing .raw file for ETL"""
@@ -85,6 +86,21 @@ class mzXML:
     def ms1_search(self):
         pass
     
-    def ms2_search(self):
-        pass
-    
+    def ms_search(self, search_val, ms_level):
+        '''
+        Function to return pseudo-EIC of ms2 ion of interes.
+        '''
+        num_dig = len(str(search_val).split('.')[-1])
+        xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        for i, scan in enumerate(self.data):
+            rt = scan['retentionTime']
+            xs[i] = rt
+            if scan['msLevel'] == ms_level:
+                frags = np.round(scan['m/z array'], num_dig)
+                frag_int = scan['intensity array']
+                if len(frags) > 1:
+                    idx = np.where(frags==search_val)
+                    if idx[0]:
+                        ys[i] = frag_int[idx[0]]
+        plt.plot(xs, ys)
+        plt.show()
