@@ -83,19 +83,42 @@ class mzXML:
             self._precursor_to_csv(d)
         return
 
-    def ms1_search(self):
-        pass
+    def ms1_search(self, val_list, num_dec=2):
+        '''
+        Function to return plot, xs, and ys of pseudo-EIC data.
+        '''
+        xs, ys = [], []
+        for i, scan in enumerate(self.data):
+            if scan['msLevel'] == 1:
+                xs.append(scan['retentionTime'])
+                precs = np.round(scan['m/z array'], num_dec)
+                prec_int = scan['intensity array']
+                pull_int = prec_int[np.isin(precs, val_list)]
+                if pull_int.size == 0:
+                    ys.append(0)
+                else:
+                    ys.append(np.max(pull_int))
+        # plt.plot(xs, ys)
+        # plt.fill_between(xs, ys, alpha=0.3)
+        # plt.xlim(0, 2)
+        # plt.ylim(0,max(ys))
+        # plt.ticklabel_format(useOffset=False)
+        # plt.show()
+        return xs, ys
+
+
     
-    def ms_search(self, search_val, ms_level):
+    def ms2_search(self, search_val):
         '''
         Function to return pseudo-EIC of ms2 ion of interes.
         '''
         num_dig = len(str(search_val).split('.')[-1])
-        # xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
-        xs, ys = [], []
+        xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        # xs, ys = [], []
         for i, scan in enumerate(self.data):
-            if scan['msLevel'] == ms_level:
-                xs.append(scan['retentionTime'])
+            rt = scan['retentionTime']
+            xs[i] = rt
+            if scan['msLevel'] == 2:
                 frags = np.round(scan['m/z array'], num_dig)
                 frag_int = scan['intensity array']
                 if len(frags) > 1:

@@ -1,4 +1,5 @@
 import pandas as pd 
+import os
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 
@@ -28,3 +29,13 @@ def smooth_chrom(xs=[], ys=[], smooth_factor=1, source=None, filename=None, save
     plt.fill_between(xs, ys, alpha=0.3)
     if save_as:
         plt.savefig(save_as)
+
+def get_files(directory='.', exts=['-peptides.csv']):
+    all_files = []
+    for root, _, files in os.walk(directory, topdown=True):
+        for name in files:
+            file_path = os.path.join(root, name)
+            for ext in exts:
+                if file_path.endswith(ext):
+                    all_files.append(file_path)
+    return all_files
