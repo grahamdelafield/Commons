@@ -91,11 +91,11 @@ class mzXML:
         Function to return pseudo-EIC of ms2 ion of interes.
         '''
         num_dig = len(str(search_val).split('.')[-1])
-        xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        # xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        xs, ys = [], []
         for i, scan in enumerate(self.data):
-            rt = scan['retentionTime']
-            xs[i] = rt
             if scan['msLevel'] == ms_level:
+                xs.append(scan['retentionTime'])
                 frags = np.round(scan['m/z array'], num_dig)
                 frag_int = scan['intensity array']
                 if len(frags) > 1:
