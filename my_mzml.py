@@ -83,6 +83,15 @@ class mzXML:
             self._precursor_to_csv(d)
         return
 
+    def base_peak(self):
+        xs, ys = [], []
+        for i, scan in enumerate(self.data):
+            if scan['msLevel']==1:
+                xs.append(scan['retentionTime'])
+                ints = scan['intensity array']
+                ys.append(np.max(ints))
+        return np.array(xs), np.array(ys)
+
     def ms1_search(self, val_list, num_dec=2):
         '''
         Function to return plot, xs, and ys of pseudo-EIC data.
@@ -104,7 +113,7 @@ class mzXML:
         # plt.ylim(0,max(ys))
         # plt.ticklabel_format(useOffset=False)
         # plt.show()
-        return xs, ys
+        return np.array(xs), np.array(ys)
 
 
     
@@ -125,5 +134,4 @@ class mzXML:
                     idx = np.where(frags==search_val)
                     if idx[0]:
                         ys[i] = frag_int[idx[0]]
-        plt.plot(xs, ys)
-        plt.show()
+        return np.array(xs), np.array(ys)

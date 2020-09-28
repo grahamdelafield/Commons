@@ -1,4 +1,5 @@
 import pandas as pd 
+import numpy as np
 import os
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
@@ -31,6 +32,13 @@ def smooth_chrom(xs=[], ys=[], smooth_factor=1, source=None, filename=None, save
         plt.savefig(save_as)
 
 def get_files(directory='.', exts=['-peptides.csv']):
+    '''
+    Function that searches the defined directory and reutrns list
+    of all files with the specified extension or ending.
+
+    :param directory: (str) raw string of directory to be searched
+    :param exts: (list) list of extensions or endings to be returned
+    '''
     all_files = []
     for root, _, files in os.walk(directory, topdown=True):
         for name in files:
@@ -39,3 +47,15 @@ def get_files(directory='.', exts=['-peptides.csv']):
                 if file_path.endswith(ext):
                     all_files.append(file_path)
     return all_files
+
+def find_nearest(array, value):
+    '''
+    Function that searches an array and returns the value nearest to the
+    one passed.
+
+    :param array: (array-like) array to be searched
+    :param value: (int or float) experimental value
+    '''
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
