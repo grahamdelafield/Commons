@@ -1,8 +1,10 @@
-from pyteomics import mzml, mzxml, auxiliary
+from pyteomics import mzml, mzxml, auxiliary, mass
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['axes.formatter.useoffset'] = False
+
+###############################################################################
 
 class mzXML:
     """Class representing .raw file for ETL"""
@@ -107,12 +109,6 @@ class mzXML:
                     ys.append(0)
                 else:
                     ys.append(np.max(pull_int))
-        # plt.plot(xs, ys)
-        # plt.fill_between(xs, ys, alpha=0.3)
-        # plt.xlim(0, 2)
-        # plt.ylim(0,max(ys))
-        # plt.ticklabel_format(useOffset=False)
-        # plt.show()
         return np.array(xs), np.array(ys)
 
 
@@ -135,3 +131,28 @@ class mzXML:
                     if idx[0]:
                         ys[i] = frag_int[idx[0]]
         return np.array(xs), np.array(ys)
+
+###############################################################################
+
+def fragments(peptide, types=('b', 'y'), max_charge=1):
+    '''
+    Function that returns theoretical fragments of peptide.
+    Modeled from : https://pyteomics.readthedocs.io/en/latest/examples/example_msms.html
+
+    :param peptide: (str) peptide sequence
+    :param types: (tuple) types of fragments desired
+    :param max_charge: (int) maximum charge state of fragment ions
+    '''
+    d = {}
+    for ion_type in types:
+        d[ion_type] = []
+        for i in range(1, len(peptide)-1):
+            for charge in range(1, max_charge+1):
+                if ion_type[0] in 'abc':
+                    m = mass.fast_mass(
+                        peptide[:i], ion_type=ion_type, charge=charge)
+                else:
+                    m = mass.fast_mass(peptide[i:], ion_type=ion_type, charge=charge)
+                d[ion_type].append(m)
+    return d
+
