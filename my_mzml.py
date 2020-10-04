@@ -158,9 +158,11 @@ def fragments(peptide, types=('b', 'y'), max_charge=1):
     d = {}
     for ion_type in types:
         d[ion_type] = []
-        for i in range(1, len(peptide)-1):
+        for i in range(1, len(peptide)):
             for charge in range(1, max_charge+1):
                 if ion_type[0] in 'abc':
+                    if i == 0:
+                        continue
                     m = mass.fast_mass(
                         peptide[:i], ion_type=ion_type, charge=charge)
                 else:
