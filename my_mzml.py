@@ -85,6 +85,18 @@ class mzXML:
             self._precursor_to_csv(d)
         return
 
+    def get_scan(self, scan_num):
+        '''
+        Function that returns the m/z and intensity arrays from given scan number.
+
+        :param scan_num: scan index number
+
+        :returns: m/z array, intensity array
+        '''
+        scan = self.data[scan_num]
+        return scan['m/z array'], scan['intensity array']
+
+
     def base_peak(self):
         xs, ys = [], []
         for i, scan in enumerate(self.data):
