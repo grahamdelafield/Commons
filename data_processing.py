@@ -1,8 +1,10 @@
+import matplotlib.pyplot as plt
+import altair as alt
 import pandas as pd 
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
+
 
 def smooth_chrom(xs=[], ys=[], smooth_factor=1, source=None, filename=None, save_as=None):
     '''
@@ -59,3 +61,41 @@ def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
+
+def plot_ms2_data(xs, ys, peptide, frag_dict):
+    df = pd.DataFrame({
+        'x':xs, 'y':ys,
+        'fragment':['None']*len(xs),
+        'label':['']*len(xs)
+    })
+    df.loc[:, 'y'] = df.y / np.max(df.y) * 100
+    df['label position'] = df.y + 5
+
+    for k, v in frag_dict.items():
+        for frag in v:
+            nearest = find_nearest(df.x, frag)
+            df.loc[(df.x==nearest), 'fragment'] = k
+            df.loc[(df.x==nearest), 'label'] = k+f'{v.index(frag)}'
+    
+    domain = df.fragment.unique()
+    _range = ['#000000', '#9b3ec7', '#144196', '#a11225']
+    
+    bars = alt.Chart(df).mark_bar(size=2).encode(
+        x=alt.X('x', title='m/z', axis=alt.Axis(grid=False)),
+        y=alt.Y('y', title='Relative Abundance',
+                axis=alt.Axis(grid=False, tickCount=1),
+                scale=alt.Scale(domain=(0, 100))),
+        color=alt.Color('fragment', scale=alt.Scale(domain=domain,
+                        range=_range), legend=None)
+    ).properties(
+        title=peptide
+    )
+
+    text = alt.Chart(df).mark_text().encode(
+        y=alt.Y('label position'),
+        x=alt.X('x'),
+        text='label'
+    )
+    return alt.layer(bars, text).configure_view(
+        strokeWidth=0
+    )

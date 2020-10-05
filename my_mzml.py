@@ -68,7 +68,7 @@ class mzXML:
         for x in self.data:
             if x["msLevel"] == 2:
                 frags = x["m/z array"]
-                frag_int = x["intensity array"]
+                # frag_int = x["intensity array"]
                 if len(frags) > 1:
                     precursor = x["precursorMz"][0]["precursorMz"]
                     precursor = np.round(precursor, decimals)
@@ -111,7 +111,7 @@ class mzXML:
         Function to return plot, xs, and ys of pseudo-EIC data.
         '''
         xs, ys = [], []
-        for i, scan in enumerate(self.data):
+        for _, scan in enumerate(self.data):
             if scan['msLevel'] == 1:
                 xs.append(scan['retentionTime'])
                 precs = np.round(scan['m/z array'], num_dec)
