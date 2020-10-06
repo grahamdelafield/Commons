@@ -62,7 +62,16 @@ def find_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
     return array[idx]
 
-def plot_ms2_data(xs, ys, peptide, frag_dict):
+def plot_ms2_data(xs, ys, peptide, frag_dict, tolerance=25):
+    '''
+    Function to return altair plot of identified fragments for a theoretical 
+    peptide.
+
+    :param xs: (array) x/time data
+    :param ys: (array) intensity data
+    :param peptide: (string) peptide sequence
+    :param frag_dict: (dict) output returned from data_processing.fragments func
+    '''
     df = pd.DataFrame({
         'x':xs, 'y':ys,
         'fragment':['None']*len(xs),
@@ -74,8 +83,10 @@ def plot_ms2_data(xs, ys, peptide, frag_dict):
     for k, v in frag_dict.items():
         for frag in v:
             nearest = find_nearest(df.x, frag)
-            df.loc[(df.x==nearest), 'fragment'] = k
-            df.loc[(df.x==nearest), 'label'] = k+f'{v.index(frag)}'
+            error = mass_error(frag, nearest)
+            if abs(error) <= tolerance:
+                df.loc[(df.x==nearest), 'fragment'] = k
+                df.loc[(df.x==nearest), 'label'] = k+f'{v.index(frag)+1}'
     
     domain = df.fragment.unique()
     _range = ['#000000', '#9b3ec7', '#144196', '#a11225']
@@ -99,3 +110,11 @@ def plot_ms2_data(xs, ys, peptide, frag_dict):
     return alt.layer(bars, text).configure_view(
         strokeWidth=0
     )
+
+def mass_error(measured, exact):
+    '''
+    Returns mass error between measured and theoretical values.
+    '''
+    dif = measured - exact
+    quo = dif / exact
+    return quo * 10**6
