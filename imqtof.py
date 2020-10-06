@@ -8,10 +8,14 @@ import altair as alt
 
 class IMQCsv:
 
-    def __init__(self, filename):
+    def __init__(self, filename, chrom_data=False, samples=None):
         assert filename.endswith('.csv'), 'Class IMQCsv only accepts .csv files'
         self.file = filename
+        if chrom_data:
+            self.data = self._read_chrom(samples)
+            return
         self.data = self._read_file()
+        return
 
     def __repr__(self):
         text = (f'IMQCsv object instantiated on file {self.file}. Methods ' + 
@@ -75,6 +79,50 @@ class IMQCsv:
             color="Sample:O"
             ).properties(width=800, title=name)
         return line
+
+    def _read_chrom(self, samples):
+        with open(self.file, 'r') as f:
+            res = []
+            contents = f.read()
+            contents = contents.replace('\x00', '')
+            contents = contents.split('\n')
+            d = []
+            for c in contents:
+                if c.startswith('#'):
+                    if d == []:
+                        pass
+                    else:
+                        res.append(d)    
+                elif c == '':
+                    continue
+                else:
+                    d.append(c)
+            res.append(d)
+
+        df = pd.DataFrame()
+        for i, sample in enumerate(samples):
+            data = res[i]
+            data = [d.split(',') for d in data]
+            points = [t[0] for t in data]
+            time = [t[1] for t in data]
+            intens = [t[2] for t in data]
+            names = [sample]*len(data)
+            if df.empty:
+                df = pd.DataFrame({
+                    'Sample':names,
+                    'idx':points,
+                    'Time':time,
+                    'Intensity':intens
+                })
+            else:
+                sub = pd.DataFrame({
+                    'Sample':names,
+                    'idx':points,
+                    'Time':time,
+                    'Intensity':intens
+                })
+                df = pd.concat([df, sub])
+        return df
 
     def chrom_to_plot(self, ext=".png", use_cwd=False):
         names, times, ys =  [], [], []
