@@ -130,6 +130,7 @@ class IMQCsv:
             out_name = ntpath.basename(self.file)
             out_name = ''.join(out_name.split('.')[:-1])
         else:
+            print((self.file.split(".")[:-1]))
             out_name = "".join(self.file.split(".")[:-1])
             out_name = out_name + '_Chromatogram' + ext
         
