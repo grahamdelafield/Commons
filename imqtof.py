@@ -110,7 +110,7 @@ class IMQCsv:
                 ).properties(width=800, title=name)
             return line
 
-    def plot_frame(self, names, times, ys):
+    def _plot_frame(self, names, times, ys):
         charts = []
         for i, time_l in enumerate(times):
             name = input(f"Give name for sample{names[i][0]}:\t")
