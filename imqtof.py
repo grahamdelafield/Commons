@@ -124,7 +124,7 @@ class IMQCsv:
     def chrom_to_plot(self, ext='.png', use_cwd=False):
         names, times, ys = self.pull_data()
 
-        charts = self.plot_frame(names, times, ys)
+        charts = self._plot_frame(names, times, ys)
 
         if use_cwd:
             out_name = ntpath.basename(self.file)
