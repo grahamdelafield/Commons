@@ -1,4 +1,5 @@
 import altair as alt
+alt.data_transformers.disable_max_rows()
 import pandas as pd 
 import numpy as np
 import os

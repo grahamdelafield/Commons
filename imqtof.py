@@ -3,6 +3,7 @@ import csv
 import ntpath
 import pandas as pd
 import altair as alt
+alt.data_transformers.disable_max_rows()
 
 
 

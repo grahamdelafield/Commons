@@ -1,8 +1,9 @@
-from pyteomics import mzml, mzxml, auxiliary, mass
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['axes.formatter.useoffset'] = False
+from scipy.signal import argrelextrema
+from pyteomics import mzml, mzxml, auxiliary, mass
 
 ###############################################################################
 
@@ -125,7 +126,7 @@ class mzXML:
 
 
     
-    def ms2_search(self, search_val):
+    def ms2_search(self, search_val, kind='prof'):
         '''
         Function to return pseudo-EIC of ms2 ion of interes.
         '''
@@ -136,12 +137,28 @@ class mzXML:
             rt = scan['retentionTime']
             xs[i] = rt
             if scan['msLevel'] == 2:
-                frags = np.round(scan['m/z array'], num_dig)
-                frag_int = scan['intensity array']
-                if len(frags) > 1:
-                    idx = np.where(frags==search_val)
-                    if idx[0]:
-                        ys[i] = frag_int[idx[0]]
+                if kind == 'prof':
+                    try:
+                        frags = np.round(scan['m/z array'], num_dig)
+                        frag_int = scan['intensity array']
+                        if len(frags) > 1:
+                            idx = np.where(frags==search_val)
+                            if idx[0]:
+                                ys[i] = frag_int[idx[0]]
+                    except:
+                        raise ValueError('Possible profile data in file. Call function again with "kind=cent" argument.')
+            
+                if kind == 'cent':    
+                    frags = np.round(scan['m/z array'], num_dig)
+                    frag_int = scan['intensity array']
+                    idx = argrelextrema(frag_int, np.greater)
+                    frags = frags[idx]
+                    frag_int = frag_int[idx] 
+                    if len(frags) > 1:
+                        idx = np.where(frags==search_val)
+                        if idx[0]:
+                            ys[i] = frag_int[idx[0]]
+
         return np.array(xs), np.array(ys)
 
 ###############################################################################
@@ -170,3 +187,15 @@ def fragments(peptide, types=('b', 'y'), max_charge=1):
                 d[ion_type].append(m)
     return d
 
+def prof_to_cent(xs, ys):
+    '''
+    Function to turn profile data to centroid.
+    Collects relative maximums and uses indexes of those
+    maximums to decipher xs and ys arrays.
+
+    :param xs: (array) array of x data
+    :param ys: (array) array of y data
+    '''
+    idx = argrelextrema(ys, np.greater)
+    xs, ys = xs[idx], ys[idx]
+    return xs, ys
