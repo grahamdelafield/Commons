@@ -3,7 +3,7 @@ import re
 import pandas as pd
 
 
-class By_File:
+class ByFile:
     """
     A class representing an input Byonic File.
 
