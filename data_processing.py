@@ -45,7 +45,7 @@ def get_files(directory='.', exts=['.']):
     all_files = []
     for root, _, files in os.walk(directory, topdown=True):
         if exts == ['.']:
-            return [os.path.join(root, name) for name in files]
+            all_files.extend([os.path.join(root, name) for name in files])
         for name in files:
             file_path = os.path.join(root, name)
             for ext in exts:
