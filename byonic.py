@@ -3,7 +3,7 @@ import re
 import pandas as pd
 
 
-class By_File:
+class ByFile:
     """
     A class representing an input Byonic File.
 
@@ -13,9 +13,9 @@ class By_File:
     glycopeptides.
 
     Typical usage:
-        bf = By_File(data)
+        bf = ByFile(data)
         bf.fill_no_glycans()
-        bf.remove_reverse()
+        bf.remove_reverse(modify=?)
         bf.determine_glycosites()
         bf.filter_hits(modify=?)
         bf.rame = bf.reduce_frame(gp_only=?)
@@ -69,7 +69,7 @@ class By_File:
 
     def clean_peptides(self):
         peptides = self.frame.peptide.tolist()
-        pattern = [r"[A-Z]\.", r"\.[A-Z]", r"\[\+\d*\.\d*\]"]
+        pattern = [r"^[A-Z]\.", r"\.[A-Z]$", r"\[\+\d*\.\d*\]"]
         for i in range(len(peptides)):
             for p in pattern:
                 peptides[i] = re.sub(p, "", peptides[i])

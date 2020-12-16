@@ -3,6 +3,7 @@ import csv
 import ntpath
 import pandas as pd
 import altair as alt
+alt.data_transformers.disable_max_rows()
 
 
 
@@ -76,11 +77,16 @@ class IMQCsv:
         names, times, ys =  [], [], []
         with open(self.file, "r", encoding="utf-8") as file:
             r = csv.reader(file)
+            mins, ints = [], []
             for _, row in enumerate(r):
-                # print(row)
                 if row[0].startswith('#') and row[0].endswith(".d"):
                     names.append(row)
-                    mins, ints = [], []
+                    if mins == []:
+                        continue
+                    else:
+                        times.append(mins)
+                        ys.append(ints)
+                        mins, ints = [], []
                 elif row[0].startswith('#') and not row[0].endswith(".d"):
                     continue
                 elif row[0] != "":
@@ -129,9 +135,9 @@ class IMQCsv:
         if use_cwd:
             out_name = ntpath.basename(self.file)
             out_name = ''.join(out_name.split('.')[:-1])
+            out_name = out_name + '_Chromatogram' + ext
         else:
-            print((self.file.split(".")[:-1]))
             out_name = "".join(self.file.split(".")[:-1])
             out_name = out_name + '_Chromatogram' + ext
         
-        alt.vconcat(*charts).save('Test.png')
+        alt.vconcat(*charts).save(out_name)

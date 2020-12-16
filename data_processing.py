@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import altair as alt
+alt.data_transformers.disable_max_rows()
 import pandas as pd 
 import numpy as np
 import os
@@ -33,7 +34,7 @@ def smooth_chrom(xs=[], ys=[], smooth_factor=1, source=None, filename=None, save
     if save_as:
         plt.savefig(save_as)
 
-def get_files(directory='.', exts=['-peptides.csv']):
+def get_files(directory='.', exts=['.']):
     '''
     Function that searches the defined directory and reutrns list
     of all files with the specified extension or ending.
@@ -43,6 +44,8 @@ def get_files(directory='.', exts=['-peptides.csv']):
     '''
     all_files = []
     for root, _, files in os.walk(directory, topdown=True):
+        if exts == ['.']:
+            all_files.extend([os.path.join(root, name) for name in files])
         for name in files:
             file_path = os.path.join(root, name)
             for ext in exts:
