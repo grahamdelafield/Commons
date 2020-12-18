@@ -1,7 +1,11 @@
-from pyteomics import mzml, mzxml, auxiliary
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams['axes.formatter.useoffset'] = False
+from scipy.signal import argrelextrema
+from pyteomics import mzml, mzxml, auxiliary, mass
 
+###############################################################################
 
 class mzXML:
     """Class representing .raw file for ETL"""
@@ -65,7 +69,7 @@ class mzXML:
         for x in self.data:
             if x["msLevel"] == 2:
                 frags = x["m/z array"]
-                frag_int = x["intensity array"]
+                # frag_int = x["intensity array"]
                 if len(frags) > 1:
                     precursor = x["precursorMz"][0]["precursorMz"]
                     precursor = np.round(precursor, decimals)
@@ -81,3 +85,117 @@ class mzXML:
             d = dict(sorted(d.items(), key=lambda x: x[1], reverse=True))
             self._precursor_to_csv(d)
         return
+
+    def get_scan(self, scan_num):
+        '''
+        Function that returns the m/z and intensity arrays from given scan number.
+
+        :param scan_num: scan index number
+
+        :returns: m/z array, intensity array
+        '''
+        scan = self.data[scan_num]
+        return scan['m/z array'], scan['intensity array']
+
+
+    def base_peak(self):
+        xs, ys = [], []
+        for i, scan in enumerate(self.data):
+            if scan['msLevel']==1:
+                xs.append(scan['retentionTime'])
+                ints = scan['intensity array']
+                ys.append(np.max(ints))
+        return np.array(xs), np.array(ys)
+
+    def ms1_search(self, val_list, num_dec=2):
+        '''
+        Function to return plot, xs, and ys of pseudo-EIC data.
+        '''
+        xs, ys = [], []
+        for _, scan in enumerate(self.data):
+            if scan['msLevel'] == 1:
+                xs.append(scan['retentionTime'])
+                precs = np.round(scan['m/z array'], num_dec)
+                prec_int = scan['intensity array']
+                pull_int = prec_int[np.isin(precs, val_list)]
+                if pull_int.size == 0:
+                    ys.append(0)
+                else:
+                    ys.append(np.max(pull_int))
+        return np.array(xs), np.array(ys)
+
+
+    
+    def ms2_search(self, search_val, kind='prof'):
+        '''
+        Function to return pseudo-EIC of ms2 ion of interes.
+        '''
+        num_dig = len(str(search_val).split('.')[-1])
+        xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        # xs, ys = [], []
+        for i, scan in enumerate(self.data):
+            rt = scan['retentionTime']
+            xs[i] = rt
+            if scan['msLevel'] == 2:
+                if kind == 'prof':
+                    try:
+                        frags = np.round(scan['m/z array'], num_dig)
+                        frag_int = scan['intensity array']
+                        if len(frags) > 1:
+                            idx = np.where(frags==search_val)
+                            if idx[0]:
+                                ys[i] = frag_int[idx[0]]
+                    except:
+                        raise ValueError('Possible profile data in file. Call function again with "kind=cent" argument.')
+            
+                if kind == 'cent':    
+                    frags = np.round(scan['m/z array'], num_dig)
+                    frag_int = scan['intensity array']
+                    idx = argrelextrema(frag_int, np.greater)
+                    frags = frags[idx]
+                    frag_int = frag_int[idx] 
+                    if len(frags) > 1:
+                        idx = np.where(frags==search_val)
+                        if idx[0]:
+                            ys[i] = frag_int[idx[0]]
+
+        return np.array(xs), np.array(ys)
+
+###############################################################################
+
+def fragments(peptide, types=('b', 'y'), max_charge=1):
+    '''
+    Function that returns theoretical fragments of peptide.
+    Modeled from : https://pyteomics.readthedocs.io/en/latest/examples/example_msms.html
+
+    :param peptide: (str) peptide sequence
+    :param types: (tuple) types of fragments desired
+    :param max_charge: (int) maximum charge state of fragment ions
+    '''
+    d = {}
+    for ion_type in types:
+        d[ion_type] = []
+        for i in range(1, len(peptide)):
+            for charge in range(1, max_charge+1):
+                if ion_type[0] in 'abc':
+                    if i == 0:
+                        continue
+                    m = mass.fast_mass(
+                        peptide[:i], ion_type=ion_type, charge=charge)
+                else:
+                    m = mass.fast_mass(peptide[i:], ion_type=ion_type, charge=charge)
+                d[ion_type].append(m)
+    return d
+
+def prof_to_cent(xs, ys):
+    '''
+    Function to turn profile data to centroid.
+    Collects relative maximums and uses indexes of those
+    maximums to decipher xs and ys arrays.
+
+    :param xs: (array) array of x data
+    :param ys: (array) array of y data
+    '''
+    idx = argrelextrema(ys, np.greater)
+    xs, ys = xs[idx], ys[idx]
+    return xs, ys

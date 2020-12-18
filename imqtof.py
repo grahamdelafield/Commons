@@ -3,15 +3,20 @@ import csv
 import ntpath
 import pandas as pd
 import altair as alt
+alt.data_transformers.disable_max_rows()
 
 
 
 class IMQCsv:
 
-    def __init__(self, filename):
+    def __init__(self, filename, chrom_data=False, samples=None):
         assert filename.endswith('.csv'), 'Class IMQCsv only accepts .csv files'
         self.file = filename
-        self.data = self._read_file()
+        if chrom_data:
+            self.format_file()
+        else:
+            self.data = self._read_file()
+        return
 
     def __repr__(self):
         text = (f'IMQCsv object instantiated on file {self.file}. Methods ' + 
@@ -59,32 +64,29 @@ class IMQCsv:
         new_df = pd.DataFrame(dict(zip(columns, ordered_data)))
         new_df.to_csv(out_name, index=False)
 
-    def _create_frame(self, sample, times, ints):
-        samples = [sample] * len(times)
-        df = pd.DataFrame({
-            "Sample":samples,
-            "Times":times,
-            "Intensity":ints
-        })
-        return df
+    def format_file(self):
+        with open(self.file, 'r') as f:
+            contents = f.read()
+            contents = contents.replace('\x00', '')
+            contents = contents.split('\n')
+            contents = [c for c in contents if c != '']
+        with open(self.file, 'w') as f:
+            f.write('\n'.join(contents))
 
-    def _make_chart(self, df, name):
-        line = alt.Chart(df).mark_line().encode(
-            x=alt.X("Times:Q", title="Time (min)"),
-            y=alt.Y("Intensity:Q", title="Intensity (counts)"),
-            color="Sample:O"
-            ).properties(width=800, title=name)
-        return line
-
-    def chrom_to_plot(self, ext=".png", use_cwd=False):
+    def pull_data(self):
         names, times, ys =  [], [], []
-
         with open(self.file, "r", encoding="utf-8") as file:
             r = csv.reader(file)
-            for i, row in enumerate(r):
+            mins, ints = [], []
+            for _, row in enumerate(r):
                 if row[0].startswith('#') and row[0].endswith(".d"):
                     names.append(row)
-                    mins, ints = [], []
+                    if mins == []:
+                        continue
+                    else:
+                        times.append(mins)
+                        ys.append(ints)
+                        mins, ints = [], []
                 elif row[0].startswith('#') and not row[0].endswith(".d"):
                     continue
                 elif row[0] != "":
@@ -95,7 +97,26 @@ class IMQCsv:
                     ys.append(ints)
             times.append(mins)
             ys.append(ints)
+        return names, times, ys
 
+    def _create_frame(self, sample, times, ints):
+            samples = [sample] * len(times)
+            df = pd.DataFrame({
+                "Sample":samples,
+                "Times":times,
+                "Intensity":ints
+            })
+            return df
+
+    def _make_chart(self, df, name):
+            line = alt.Chart(df).mark_line().encode(
+                x=alt.X("Times:Q", title="Time (min)"),
+                y=alt.Y("Intensity:Q", title="Intensity (counts)"),
+                color="Sample:O"
+                ).properties(width=800, title=name)
+            return line
+
+    def _plot_frame(self, names, times, ys):
         charts = []
         for i, time_l in enumerate(times):
             name = input(f"Give name for sample{names[i][0]}:\t")
@@ -103,16 +124,20 @@ class IMQCsv:
 
             chart = self._make_chart(df, name)
             charts.append(chart)
+        return charts
+
+
+    def chrom_to_plot(self, ext='.png', use_cwd=False):
+        names, times, ys = self.pull_data()
+
+        charts = self._plot_frame(names, times, ys)
 
         if use_cwd:
             out_name = ntpath.basename(self.file)
             out_name = ''.join(out_name.split('.')[:-1])
+            out_name = out_name + '_Chromatogram' + ext
         else:
             out_name = "".join(self.file.split(".")[:-1])
-        out_name = out_name + '_Chromatogram' + ext
-
-
-        alt.vconcat(*charts).save(out_name)
+            out_name = out_name + '_Chromatogram' + ext
         
-
-
+        alt.vconcat(*charts).save(out_name)

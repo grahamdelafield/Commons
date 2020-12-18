@@ -9,6 +9,7 @@
 
 import numpy as np
 import pandas as pd 
+import altair as alt
 import ntpath
 
 class PeakListFile:
@@ -93,3 +94,22 @@ class PeakListFile:
         df['Corrected Concentration'] = new_conc
         self.data = df
         return
+
+    def plot_frame(self, peak_interest):
+        df = self.data
+        source = df[df.Identity==peak_interest]
+        
+        bars = alt.Chart(source).mark_bar(size=15).encode(
+            x="Fraction:O",
+            y=alt.Y('mean(Corrected Concentration):Q', title="Mean Concentration"),
+            color="Identity:O"
+            ).properties()
+
+        error_bars = alt.Chart(source).mark_errorbar(extent="stdev").encode(
+            x="Fraction:O",
+            y="Corrected Concentration:Q"
+            )
+
+        return alt.layer(bars, error_bars).facet(
+            column="Sample:O"
+            )
