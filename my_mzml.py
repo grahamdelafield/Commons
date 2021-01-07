@@ -126,17 +126,19 @@ class mzXML:
 
 
     
-    def ms2_search(self, search_val, kind='prof'):
+    def ms2_search(self, search_val, kind='prof', frequency=False):
         '''
         Function to return pseudo-EIC of ms2 ion of interes.
         '''
         num_dig = len(str(search_val).split('.')[-1])
         xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
+        count = 0
         # xs, ys = [], []
         for i, scan in enumerate(self.data):
             rt = scan['retentionTime']
             xs[i] = rt
             if scan['msLevel'] == 2:
+                count += 1
                 if kind == 'prof':
                     try:
                         frags = np.round(scan['m/z array'], num_dig)
@@ -158,7 +160,8 @@ class mzXML:
                         idx = np.where(frags==search_val)
                         if idx[0]:
                             ys[i] = frag_int[idx[0]]
-
+        if frequency:
+            return np.array(xs), np.array(ys), count
         return np.array(xs), np.array(ys)
 
 ###############################################################################
