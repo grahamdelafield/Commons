@@ -26,6 +26,9 @@ def smooth_chrom(xs=[], ys=[], smooth_factor=1, source=None, filename=None, save
         df = pd.read_clipboard()
     elif source=='excel':
         df = pd.read_excel(filename)
+    else:
+        assert xs is not None, 'Found no valid X values'
+        assert ys is not None, 'Found no valid Y values'
     xs = df.iloc[3:, 0].astype(float)
     ys = df.iloc[3:, 1].astype(float)
     ys = gaussian_filter(ys, smooth_factor)

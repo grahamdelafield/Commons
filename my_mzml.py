@@ -109,7 +109,8 @@ class mzXML:
 
     def ms1_search(self, val_list, num_dec=2):
         '''
-        Function to return plot, xs, and ys of pseudo-EIC data.
+        Function to return plot, xs, and ys of multiple masses in 
+        pseudo-EIC data.
         '''
         xs, ys = [], []
         for _, scan in enumerate(self.data):
@@ -124,6 +125,25 @@ class mzXML:
                     ys.append(np.max(pull_int))
         return np.array(xs), np.array(ys)
 
+
+    def ms1_extract(self, search_mass, tolerance=10):
+        '''
+        Function to return plot, xs, and ys of single mass in 
+        pseudo-EIC data.
+        '''
+        xs, ys = [], []
+        low, high = mass_tolerance(search_mass, tolerance)
+        for _, scan in enumerate(self.data):
+            if scan['msLevel'] == 1:
+                xs.append(scan['retentionTime'])
+                precs = scan['m/z array']
+                prec_int = scan['intensity array']
+                ids = np.where(np.logical_and(precs >= low, precs <= high))
+                if len([0]) > 0:
+                    ys.append(np.max(prec_int[ids]))
+                else:
+                    ys.append(0)
+        return np.array(xs), np.array(ys)
 
     
     def ms2_search(self, search_val, kind='prof', frequency=False):
@@ -202,3 +222,14 @@ def prof_to_cent(xs, ys):
     idx = argrelextrema(ys, np.greater)
     xs, ys = xs[idx], ys[idx]
     return xs, ys
+
+def mass_tolerance(mass, ppm=10):
+    '''
+    Function that returns low and high end of mass tolerance range.
+
+    :param mass: (float) mass used to calculated +/- tolerance
+    :param ppm: (int) ppm mass error allowed
+    '''
+    low = ppm * mass / 1e6 - mass
+    high = ppm * mass / 1e6 + mass
+    return abs(low), abs(high)
