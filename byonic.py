@@ -69,7 +69,7 @@ class ByFile:
 
     def clean_peptides(self):
         peptides = self.frame.peptide.tolist()
-        pattern = [r"^[A-Z]\.", r"\.[A-Z]$", r"\[\+\d*\.\d*\]"]
+        pattern = [r"^[A-Z]\.", r"\.[A-Z]$", r"\[\+\d*\.\d*\]", r"^\-\.", r"\.\-$"]
         for i in range(len(peptides)):
             for p in pattern:
                 peptides[i] = re.sub(p, "", peptides[i])
