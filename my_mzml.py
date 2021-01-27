@@ -139,7 +139,7 @@ class mzXML:
                 precs = scan['m/z array']
                 prec_int = scan['intensity array']
                 ids = np.where(np.logical_and(precs >= low, precs <= high))
-                if len([0]) > 0:
+                if len(ids[0]) > 0:
                     ys.append(np.max(prec_int[ids]))
                 else:
                     ys.append(0)
