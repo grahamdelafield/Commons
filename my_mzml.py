@@ -8,18 +8,35 @@ from pyteomics import mzml, mzxml, auxiliary, mass
 ###############################################################################
 
 class mzXML:
-    """Class representing .raw file for ETL"""
+    '''Class representing .raw file for ETL'''
 
     def __init__(self, mz_file):
         self._file_path = mz_file
         self.data = mzxml.read(mz_file, use_index=True)
+        self.ms1_data, self.ms2_data = self._create_arrays()
 
     def __repr__(self):
-        return f"mzXML object instantiated from {self._file_path}"
+        return f'mzXML object instantiated from {self._file_path}'
+
+    def _create_arrays(self):
+        '''Private Function
+
+        Called internally to instantiate MS1 and MS2 nd arrays.
+        '''
+        ms1, ms2 = [], []
+        for scan in self.data:
+            time = scan['retentionTime']
+            masses = scan['m/z array']
+            ints = scan['intensity array']
+            if scan['msLevel'] == 1:
+                ms1.append([time, masses, ints])
+            else:
+                ms2.append([time, masses, ints])
+        return np.array(ms1), np.array(ms2)
 
     def _precursor_to_csv(self, precursor_list, max_len=2000, path=None, intensities=False):
 
-        """To be called from func 'get_precursors'. Returns .csv
+        '''To be called from func 'get_precursors'. Returns .csv
            file of all precursors identified in mzxml object.
            
            args:
@@ -30,23 +47,23 @@ class mzXML:
                 - path (type: str) path where .csv will be saved
                 - intensities (type: bool) when True, exported dataframe will
                   contain intensity values associated with precursor masses
-        """
+        '''
 
         if path is None:
-            path = self._file_path.split(".")[0]  + "_precursors.csv"
+            path = self._file_path.split('.')[0]  + '_precursors.csv'
         else:
-            path = path + "_precursors.csv"
+            path = path + '_precursors.csv'
 
         if isinstance(precursor_list, list):
             df = pd.DataFrame(precursor_list)
         elif isinstance(precursor_list, dict):
             keys = list(precursor_list.keys())
             vals = list(precursor_list.values())
-            df = pd.DataFrame({"mass":keys, "int":vals})
+            df = pd.DataFrame({'mass':keys, 'int':vals})
 
         df = df.iloc[:max_len, :intensities+1]
         df.to_csv(path, index=False, header=False)
-        print(f"...precursors.csv file created in {path}")
+        print(f'...precursors.csv file created in {path}')
         return
 
     def get_tree(self):
@@ -54,33 +71,33 @@ class mzXML:
 
     def get_precursors(self, decimals=2, by=None):
 
-        """Function to pull all recognized precursor m/z values with
+        '''Function to pull all recognized precursor m/z values with
            more than 1 fragment.
            
            args: 
                 - decimals (type: int) number of decimal points returned
                   from precursor mass
                 - by (type: str) structured order of precursor masses. 
-                  options ["Intensity"] """
+                  options ['Intensity'] '''
 
         precursors = []
         intensities = []
 
         for x in self.data:
-            if x["msLevel"] == 2:
-                frags = x["m/z array"]
-                # frag_int = x["intensity array"]
+            if x['msLevel'] == 2:
+                frags = x['m/z array']
+                # frag_int = x['intensity array']
                 if len(frags) > 1:
-                    precursor = x["precursorMz"][0]["precursorMz"]
+                    precursor = x['precursorMz'][0]['precursorMz']
                     precursor = np.round(precursor, decimals)
-                    intensity = x["precursorMz"][0]["precursorIntensity"]
+                    intensity = x['precursorMz'][0]['precursorIntensity']
                     precursors.append(precursor)
                     intensities.append(intensity)
-        print(f"{len(set(precursors))} precursors collected from {self._file_path}")
+        print(f'{len(set(precursors))} precursors collected from {self._file_path}')
         if by == None:
             precursors = sorted(list(set(precursors)))
             self._precursor_to_csv(precursors)
-        elif by == "Intensity":
+        elif by == 'Intensity':
             d = dict(zip(precursors, intensities))
             d = dict(sorted(d.items(), key=lambda x: x[1], reverse=True))
             self._precursor_to_csv(d)
@@ -113,7 +130,7 @@ class mzXML:
         pseudo-EIC data.
         '''
         xs, ys = [], []
-        for _, scan in enumerate(self.data):
+        for _, scan in enumerate(self.ms1_data):
             if scan['msLevel'] == 1:
                 xs.append(scan['retentionTime'])
                 precs = np.round(scan['m/z array'], num_dec)
@@ -133,22 +150,19 @@ class mzXML:
         '''
         xs, ys = [], []
         low, high = mass_tolerance(search_mass, tolerance)
-        for _, scan in enumerate(self.data):
-            if scan['msLevel'] == 1:
-                xs.append(scan['retentionTime'])
-                precs = scan['m/z array']
-                prec_int = scan['intensity array']
-                ids = np.where(np.logical_and(precs >= low, precs <= high))
-                if len(ids[0]) > 0:
-                    ys.append(np.max(prec_int[ids]))
-                else:
-                    ys.append(0)
+        for _, scan in enumerate(self.ms1_data):
+            xs.append(scan[0])
+            precs = scan[1]
+            ids = np.where(np.logical_and(precs >= low, precs <= high))
+            if len(ids[0]) > 0:
+                ys.append(np.max(scan[2][ids]))
+            else:
+                ys.append(0)
         return np.array(xs), np.array(ys)
-
     
     def ms2_search(self, search_val, kind='prof', frequency=False):
         '''
-        Function to return pseudo-EIC of ms2 ion of interes.
+        Function to return pseudo-EIC of ms2 ion of interest.
         '''
         num_dig = len(str(search_val).split('.')[-1])
         xs, ys = np.zeros(len(self.data)), np.zeros(len(self.data))
