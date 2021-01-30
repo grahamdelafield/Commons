@@ -104,16 +104,18 @@ def plot_ms2_data(xs, ys, peptide, frag_dict, mods=None, show_error=False, toler
                 df.loc[(df.x==nearest), 'fragment'] = k
                 df.loc[(df.x==nearest), 'label'] = k+f'{v.index(frag)+1}'
     
-    domain = df.fragment.unique()
-    _range = ['#000000', '#9b3ec7', '#144196', '#a11225']
+    dom = {
+        'b': '#3b5bad',
+        'y': '#c42e23'
+    }
     
     bars = alt.Chart(df).mark_bar(size=2).encode(
         x=alt.X('x', title='m/z', axis=alt.Axis(grid=False)),
         y=alt.Y('y', title='Relative Abundance',
                 axis=alt.Axis(grid=False, tickCount=1),
                 scale=alt.Scale(domain=(0, 100))),
-        color=alt.Color('fragment', scale=alt.Scale(domain=domain,
-                        range=_range), legend=None)
+        color=alt.Color('fragment', scale=alt.Scale(domain=list(dom.keys()),
+                        range=list(dom.values())), legend=None)
     ).properties(
         title=peptide
     )
@@ -135,8 +137,8 @@ def plot_ms2_data(xs, ys, peptide, frag_dict, mods=None, show_error=False, toler
             x=alt.X('mass:Q', title='m/z', axis=alt.Axis(grid=False)),
             y=alt.Y('error:Q', title='error (ppm)', axis=alt.Axis(grid=True, tickCount=3),
                     scale=alt.Scale(domain=(-tolerance, tolerance))),
-            color='kind:O'
-        ).properties(height=100)
+            color=alt.Color('kind:O', scale=alt.Scale(domain=list(dom.keys()), range=list(dom.values()))
+            )).properties(height=100)
 
         line = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(
             strokeDash=[10, 10]).encode(y='y')
