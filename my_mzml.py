@@ -111,6 +111,10 @@ class mzXML:
 
         :returns: m/z array, intensity array
         '''
+        if isinstance(scan_num, int):
+            scan_num = str(scan_num + 1)
+        elif isinstance(scan_num, str):
+            pass
         scan = self.data[scan_num]
         return scan['m/z array'], scan['intensity array']
 

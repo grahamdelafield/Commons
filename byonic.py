@@ -17,6 +17,7 @@ class ByFile:
         bf.fill_no_glycans()
         bf.remove_reverse(modify=?)
         bf.determine_glycosites()
+        bf.categorize_glycans()
         bf.filter_hits(modify=?)
         bf.rame = bf.reduce_frame(gp_only=?)
         total = bf.total_gp()
@@ -120,6 +121,36 @@ class ByFile:
             if site not in site_dict[protein]:
                 site_dict[protein].append(site)
         return site_dict
+
+    def categorize_glycan(self):
+        glycans = self.frame.glycan.tolist()
+        glycan_types = []
+        for s in glycans:
+            s = s.replace(')', ',')
+            s = s.replace('(', ' ')
+            s = s.split(',')[:-1]
+            d = {k:int(v) for [k, v] in [i.split(' ') for i in s]}
+
+            if 'NeuAc' in d or 'NeuGc' in d:
+                glycan_types.append('Sialylated')
+            elif 'Fuc' in d:
+                if d['HexNAc'] > 2:
+                    glycan_types.append('Fucosylated')
+                elif d['HexNAc'] == 2:
+                    if 'Hex' in d:
+                        if d['Hex'] > 4:
+                            glycan_types.append('Complex')
+                        else:
+                            glycan_types.append('Paucimannose' )
+            elif d['HexNAc'] > 2:
+                glycan_types.append('Complex')
+            if d['HexNAc'] <= 2:
+                if 'Hex' in d:
+                    if d['Hex'] <= 9 and d['Hex'] > 4:
+                        glycan_types.append('High Mannose')
+                glycan_types.append('Paucimannose')
+
+        self.frame.loc[:, 'glycan_types'] = glycan_types
 
     def filter_hits(self, score=150, delta_mod=10, log_prob=1, modify=False):
         crit_1 = (self.frame.score >= score)

@@ -68,7 +68,7 @@ def find_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
     return array[idx]
 
-def plot_ms2_data(xs, ys, peptide, frag_dict, tolerance=25):
+def plot_ms2_data(xs, ys, peptide, frag_dict, mods=None, show_error=False, tolerance=25):
     '''
     Function to return altair plot of identified fragments for a theoretical 
     peptide.
@@ -86,11 +86,21 @@ def plot_ms2_data(xs, ys, peptide, frag_dict, tolerance=25):
     df.loc[:, 'y'] = df.y / np.max(df.y) * 100
     df['label position'] = df.y + 5
 
+    err_mass, err_dist, err_kind= [], [], []
+
+    if mods is not None:
+        assert isinstance(mods, dict), 'modifications must enter as dictionary'
+        for k in mods:
+            frag_dict[k] = mods[k]
+
     for k, v in frag_dict.items():
         for frag in v:
             nearest = find_nearest(df.x, frag)
             error = mass_error(frag, nearest)
             if abs(error) <= tolerance:
+                err_mass.append(nearest)
+                err_dist.append(error)
+                err_kind.append(k)
                 df.loc[(df.x==nearest), 'fragment'] = k
                 df.loc[(df.x==nearest), 'label'] = k+f'{v.index(frag)+1}'
     
@@ -113,9 +123,29 @@ def plot_ms2_data(xs, ys, peptide, frag_dict, tolerance=25):
         x=alt.X('x'),
         text='label'
     )
-    return alt.layer(bars, text).configure_view(
+    chart = alt.vconcat()
+    chart &= alt.layer(bars, text)
+    if show_error:
+        err_df = pd.DataFrame({
+            'mass':err_mass,
+            'error':err_dist,
+            'kind':err_kind
+        })
+        dots = alt.Chart(err_df).mark_circle().encode(
+            x=alt.X('mass:Q', title='m/z', axis=alt.Axis(grid=False)),
+            y=alt.Y('error:Q', title='error (ppm)', axis=alt.Axis(grid=True, tickCount=3),
+                    scale=alt.Scale(domain=(-tolerance, tolerance))),
+            color='kind:O'
+        ).properties(height=100)
+
+        line = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(
+            strokeDash=[10, 10]).encode(y='y')
+
+
+        chart &= (dots + line)
+    return chart.configure_view(
         strokeWidth=0
-    )
+    ).resolve_scale(x='shared')
 
 def mass_error(measured, exact):
     '''
