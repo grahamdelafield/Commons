@@ -14,6 +14,7 @@ class IMQCsv:
         self.file = filename
         if chrom_data:
             self.format_file()
+            self.data = self._read_file()
         else:
             self.data = self._read_file()
         return
@@ -80,7 +81,7 @@ class IMQCsv:
             mins, ints = [], []
             for _, row in enumerate(r):
                 if row[0].startswith('#') and row[0].endswith(".d"):
-                    names.append(row)
+                    names.extend(row)
                     if mins == []:
                         continue
                     else:
