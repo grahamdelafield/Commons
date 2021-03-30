@@ -17,9 +17,9 @@ class ByFile:
         bf.fill_no_glycans()
         bf.remove_reverse(modify=?)
         bf.determine_glycosites()
-        bf.categorize_glycans()
+        bf.categorize_glycan()
         bf.filter_hits(modify=?)
-        bf.rame = bf.reduce_frame(gp_only=?)
+        bf.frame = bf.reduce_frame(gp_only=?)
         total = bf.total_gp()
         unique = bf.unique_gp()
     
@@ -144,12 +144,12 @@ class ByFile:
                             glycan_types.append('Paucimannose' )
             elif d['HexNAc'] > 2:
                 glycan_types.append('Complex')
-            if d['HexNAc'] <= 2:
+            elif d['HexNAc'] <= 2:
                 if 'Hex' in d:
                     if d['Hex'] <= 9 and d['Hex'] > 4:
                         glycan_types.append('High Mannose')
                 glycan_types.append('Paucimannose')
-
+        print(len(glycan_types))
         self.frame.loc[:, 'glycan_types'] = glycan_types
 
     def filter_hits(self, score=150, delta_mod=10, log_prob=1, modify=False):

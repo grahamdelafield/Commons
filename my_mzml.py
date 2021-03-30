@@ -10,10 +10,14 @@ from pyteomics import mzml, mzxml, auxiliary, mass
 class mzXML:
     '''Class representing .raw file for ETL'''
 
-    def __init__(self, mz_file):
+    def __init__(self, mz_file, separate_levels=False):
         self._file_path = mz_file
+        self.ms1_data = None
+        self.ms2_data = None
         self.data = mzxml.read(mz_file, use_index=True)
-        self.ms1_data, self.ms2_data = self._create_arrays()
+
+        if separate_levels:
+            self.ms1_data, self.ms2_data = self._create_arrays()
 
     def __repr__(self):
         return f'mzXML object instantiated from {self._file_path}'
@@ -121,11 +125,18 @@ class mzXML:
 
     def base_peak(self):
         xs, ys = [], []
-        for i, scan in enumerate(self.data):
-            if scan['msLevel']==1:
-                xs.append(scan['retentionTime'])
-                ints = scan['intensity array']
-                ys.append(np.max(ints))
+        if self.ms1_data is None:
+            for i, scan in enumerate(self.data):
+                if scan['msLevel']==1:
+                    xs.append(scan['retentionTime'])
+                    ints = scan['intensity array']
+                    ys.append(np.max(ints))
+        else: # ms1 data has already been created
+            data = self.ms1_data.flat
+            xs = data[0::3]
+            ints = data[2::3]
+            for arr in ints:
+                ys.append(np.max(arr))
         return np.array(xs), np.array(ys)
 
     def ms1_search(self, val_list, num_dec=2):
@@ -133,8 +144,12 @@ class mzXML:
         Function to return plot, xs, and ys of multiple masses in 
         pseudo-EIC data.
         '''
+        if self.ms1_data is None:
+            data = self.data
+        else: # ms1 data has already been created
+            data = self.ms1_Data
         xs, ys = [], []
-        for _, scan in enumerate(self.ms1_data):
+        for _, scan in enumerate(data):
             if scan['msLevel'] == 1:
                 xs.append(scan['retentionTime'])
                 precs = np.round(scan['m/z array'], num_dec)

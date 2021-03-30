@@ -80,7 +80,7 @@ class IMQCsv:
             r = csv.reader(file)
             mins, ints = [], []
             for _, row in enumerate(r):
-                if row[0].startswith('#') and row[0].endswith(".d"):
+                if row[0].startswith('#') and row[0].endswith('.d'):
                     names.extend(row)
                     if mins == []:
                         continue
