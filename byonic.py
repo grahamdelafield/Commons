@@ -133,23 +133,29 @@ class ByFile:
 
             if 'NeuAc' in d or 'NeuGc' in d:
                 glycan_types.append('Sialylated')
+                continue
             elif 'Fuc' in d:
                 if d['HexNAc'] > 2:
                     glycan_types.append('Fucosylated')
+                    continue
                 elif d['HexNAc'] == 2:
                     if 'Hex' in d:
                         if d['Hex'] > 4:
                             glycan_types.append('Complex')
+                            continue
                         else:
                             glycan_types.append('Paucimannose' )
+                            continue
             elif d['HexNAc'] > 2:
                 glycan_types.append('Complex')
+                continue
             elif d['HexNAc'] <= 2:
                 if 'Hex' in d:
                     if d['Hex'] <= 9 and d['Hex'] > 4:
                         glycan_types.append('High Mannose')
+                        continue
                 glycan_types.append('Paucimannose')
-        print(len(glycan_types))
+                continue
         self.frame.loc[:, 'glycan_types'] = glycan_types
 
     def filter_hits(self, score=150, delta_mod=10, log_prob=1, modify=False):
