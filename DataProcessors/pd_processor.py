@@ -4,7 +4,6 @@
 # All code is provided 'as is' and is not guaranteed for to fit any custom 
 # workflows beyond its initial design 
 
-import numpy as np 
 import pandas as pd 
 import os
 import re
@@ -34,14 +33,14 @@ class PDProcessor:
 
             # read data
             self._current_data = pd.read_excel(file)
-            
-            # cast source to entire dataset
-            self._current_data.loc[:, 'data_source'] = [base_name]
 
             # separate proteins, peptides, psms
             self._gather_proteins()
             self._gather_peptides()
             self._gather_psms()
+
+            # add the source identifier to all objects
+            self._cast_identity(sample_name)
 
     
     def __repr__(self):
@@ -115,7 +114,6 @@ class PDProcessor:
         dummy_frame = dummy_frame.merge(parent[[
                                             'accession',
                                             'description',
-                                            'data_source'
                                             ]],
                                         how='outer',
                                         left_index=True,
@@ -218,6 +216,33 @@ class PDProcessor:
             return match.group(2)
         return sequence
 
+    def _cast_identity(self, source_name: str):
+        '''
+        Add data source column and conents to all master objects
+        
+        :arg source_name:
+            (str)   string to serve as identifier for dataset
+        '''
+        
+        for frame in [self.proteins, self.peptides, self.psms]:
+            frame.loc[:, 'data_source'] = source_name
+
+    def add_special_column(self, col_name: str, value: str):
+        '''
+        Adds bespoke column that contains supplied contents.
+        
+        :arg col_name:
+            (str)   string associated with column headers
+            
+        :arg value:
+            (str)   value or values to be in column
+        '''
+
+        for frame in [self.proteins, self.peptides, self.psms]:
+            frame.loc[:, col_name] = value
+
+        return
+
     def join_processors(self, other):
         '''
         Function to join data from two PDProcessor objects
@@ -262,6 +287,8 @@ class PDProcessor:
                     # if new name, prefix with underscore
                     if not new_alias == '':
                         replacement = '_' + new_alias
+                    else:
+                        replacement = new_alias
 
                     # replace the matching text with our new name
                     columns[i] = re.sub(old_text, replacement, column)
