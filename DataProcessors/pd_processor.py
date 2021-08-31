@@ -10,7 +10,7 @@ import os
 import re
 
 class PDProcessor:
-    def __init__(self, files: list, filename: str=None):
+    def __init__(self, files: list, sample_name: str=None):
 
         # ensure files are type list
         filetype_err = f'''Files submitted to PDProcessor must be of {type([])}
@@ -27,16 +27,16 @@ class PDProcessor:
 
         # determine name to associate with data
         for i, file in enumerate(files):
-            if filename is None:
+            if sample_name is None:
                 base_name = os.path.basename(file)
             else:
-                base_name = filename
+                base_name = sample_name
 
             # read data
             self._current_data = pd.read_excel(file)
             
             # cast source to entire dataset
-            self._current_data.loc[:, 'data_source'] = base_name
+            self._current_data.loc[:, 'data_source'] = [base_name]
 
             # separate proteins, peptides, psms
             self._gather_proteins()
@@ -112,7 +112,11 @@ class PDProcessor:
             'Value':[None]*reqd_len
         }, index=range(reqd_len))
 
-        dummy_frame = dummy_frame.merge(parent[['accession', 'description']],
+        dummy_frame = dummy_frame.merge(parent[[
+                                            'accession',
+                                            'description',
+                                            'data_source'
+                                            ]],
                                         how='outer',
                                         left_index=True,
                                         right_index=True)
@@ -215,7 +219,13 @@ class PDProcessor:
         return sequence
 
     def join_processors(self, other):
-        '''Function to join data from two PDProcessor objects'''
+        '''
+        Function to join data from two PDProcessor objects
+        
+        :arg other:
+            (pd.dataframe)  dataframe to which the current will be
+                            joined
+        '''
 
         # combine this processor with adjacent
         self.proteins = pd.concat([self.proteins, other.proteins])
@@ -227,4 +237,36 @@ class PDProcessor:
             frame = frame.reset_index()
             frame = frame.drop('index', axis=1)
         
+        return
+
+    def alias_engine(self, new_alias: str):
+        '''
+        Replaces the given search engine suffix in column headers
+        
+        :arg new_alias:
+            (str)   the new name to replace the current engine suffix
+        '''
+
+        for frame in [self.proteins, self.peptides, self.psms]:
+            columns = [c for c in frame.columns]
+
+            # search for suffix
+            reg = re.compile(r'_by_search_engine.*')
+            for i, column in enumerate(columns):
+                match = re.search(reg, column)
+            
+                if match:
+                    # find text to replace
+                    old_text = match.group()
+
+                    # if new name, prefix with underscore
+                    if not new_alias == '':
+                        replacement = '_' + new_alias
+
+                    # replace the matching text with our new name
+                    columns[i] = re.sub(old_text, replacement, column)
+            
+            # replace the names in dataframe
+            frame.columns = columns
+
         return
