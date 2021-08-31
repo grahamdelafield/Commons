@@ -32,7 +32,16 @@ class PDProcessor:
             else:
                 base_name = filename
 
+            # read data
             self._current_data = pd.read_excel(file)
+            
+            # cast source to entire dataset
+            self._current_data.loc[:, 'data_source'] = base_name
+
+            # separate proteins, peptides, psms
+            self._gather_proteins()
+            self._gather_peptides()
+            self._gather_psms()
 
     
     def __repr__(self):
@@ -196,9 +205,12 @@ class PDProcessor:
     def _clean_peptides(self, sequence):
         '''Private function to remove unneeded characters from sequence sting'''
 
+        # search for leading chars, expected sequence, trailing chars
         reg = re.compile(r'(.*\.)(\w*)(\..*)')
+        
         match = re.search(reg, sequence)
         if match:
+            # extract only the wanted sequence
             return match.group(2)
         return sequence
 
