@@ -173,7 +173,7 @@ class PDProcessor:
         psms = self._current_data.loc[
             (self._current_data["Checked"].isna())
             & (self._current_data["Master"].isna())
-            & (self._current_data["Accession"] is True),
+            & (self._current_data["Accession"] == True),
             :,
         ]
 
