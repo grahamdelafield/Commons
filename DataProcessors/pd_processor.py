@@ -65,8 +65,8 @@ class PDProcessor:
             column_names[i] = col
 
         # replace pseudonymms with words
-        unwanted = [r"-", r"\#", r"\%", r"delta"]
-        replacements = [r" ", r"num", r"percent", r"delta_"]
+        unwanted = [r"-", r"\#", r"\%"]
+        replacements = [r" ", r"num", r"percent"]
 
         for i, col in enumerate(column_names):
             for j, reg in enumerate(unwanted):
@@ -78,6 +78,14 @@ class PDProcessor:
 
             # replcae name with new string
             column_names[i] = col
+
+        # replace any missing spaces
+        unwanted = re.compile(r"(delta)([a-z].*)")
+        for i, col in enumerate(column_names):
+            match = re.search(unwanted, col)
+            if match:
+                new_text = match.group(1) + '_' + match.group(2)
+                column_names[i] = new_text
 
         # insert new names to dataframe
         dataframe.columns = column_names
