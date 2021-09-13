@@ -54,7 +54,7 @@ class PDProcessor:
         column_names = [c for c in dataframe.columns]
 
         # replace special characters
-        char_pat = re.compile(r"[\[\]\(\)\|\.\:]")
+        char_pat = re.compile(r"[\[\]\(\)\|\.\:\\\/\+]")
         for i, col in enumerate(column_names):
             col = re.sub(char_pat, "", col)
 
@@ -65,8 +65,8 @@ class PDProcessor:
             column_names[i] = col
 
         # replace pseudonymms with words
-        unwanted = [r"-", r"\#", r"\%"]
-        replacements = [r" ", r"num", r"percent"]
+        unwanted = [r"-", r"\#", r"\%", r"delta"]
+        replacements = [r" ", r"num", r"percent", r"delta_"]
 
         for i, col in enumerate(column_names):
             for j, reg in enumerate(unwanted):
