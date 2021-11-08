@@ -4,7 +4,6 @@ import altair as alt
 import matplotlib.pyplot as plt 
 from scipy.ndimage import gaussian_filter
 from scipy.signal import argrelextrema
-from ms_handler import find_nearest
 from pyteomics import mass
 
 def smooth_chrom(
