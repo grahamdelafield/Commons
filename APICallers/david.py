@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import chromedriver_autoinstaller
-from shutil import move
+from os import remove
 from selenium.webdriver import Chrome
 from pathlib import PurePath, Path
 
@@ -158,10 +158,12 @@ class David:
 
             text = re.sub(full_match, full_match.replace(" ", ""), text)
 
-        self.go_to_frame(text)
-        self.driver.quit()
+        with open('clean_text.txt', 'w') as f:
+            f.write(text)
+        self.go_to_frame()
+        # self.driver.quit()
 
-    def go_to_frame(self, text):
+    def go_to_frame(self):
         """Turns text into usefule dataframe"""
         df = pd.read_csv("clean_text.txt", delimiter=" ")
 
@@ -171,9 +173,12 @@ class David:
         # create new file
         df.to_csv(f"DAVID_{self.wanted_output}.csv", index=False)
 
+        # remove unneeded text file
+        remove("clean_text.txt")
+
 
 if __name__ == "__main__":
     test_type = "ENTREZ_GENE_ID"
     test_items = ["2919", "6347", "6348", "6364"]
-    d = David("bp", query_list=test_items, accession_type=test_type)
+    d = David("cc", query_list=test_items, accession_type=test_type)
     d.make_call()
