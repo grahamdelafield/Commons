@@ -158,10 +158,13 @@ class David:
 
             text = re.sub(full_match, full_match.replace(" ", ""), text)
 
+        # write contents to file 
         with open('clean_text.txt', 'w') as f:
             f.write(text)
         self.go_to_frame()
-        # self.driver.quit()
+
+        # close webdriver
+        self.driver.quit()
 
     def go_to_frame(self):
         """Turns text into usefule dataframe"""
