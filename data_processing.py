@@ -57,3 +57,36 @@ def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
+
+def make_venn3(data_column: str, ident_column: str, dataframe):
+    """
+    Extracts data from dataframe and returns intersections of each set.
+    
+    :arg data_column:
+        (str)   name of column containing data
+    :arg ident_column:
+        (str)   name of column containing identifiers
+    :arg dataframe:
+        (pd.DataFrame)  data to be parsed
+    
+    returns set intersections (tuple), group_names (list)
+
+    """
+    group_names = dataframe[ident_column].unique()
+    assert len(group_names) == 3, f'Too many groups for venn3!! You provided {group_names}'
+
+    a = set(dataframe[(dataframe[ident_column] == group_names[0])][data_column])
+    b = set(dataframe[(dataframe[ident_column] == group_names[1])][data_column])
+    c = set(dataframe[(dataframe[ident_column] == group_names[2])][data_column])
+
+    a_only = a - b - c 
+    b_only = b - a - c 
+    c_only = c - a - b 
+
+    abc = a & b & c
+
+    ab = (a & b) - abc
+    ac = (a & c) - abc
+    bc = (b & c) - abc
+
+    return (len(a_only), len(b_only), len(ab), len(c_only), len(ac), len(bc), len(abc)), group_names
