@@ -184,6 +184,36 @@ class ByFile:
         return self.frame[cols]
 
 
+def categorize_glycan(s):
+    s = s.replace(')', ',')
+    s = s.replace('(', ' ')
+    s = s.split(',')[:-1]
+    d = {k:int(v) for [k, v] in [i.split(' ') for i in s]}
+
+    if 'NeuAc' in d or 'NeuGc' in d:
+        return 'Sialylated'
+    elif 'Fuc' in d:
+        if d['HexNAc'] > 2:
+            return 'Fucosylated'
+        elif d['HexNAc'] == 2:
+            if 'Hex' in d:
+                if d['Hex'] > 4:
+                    return 'Complex'
+                else:
+                    return 'Paucimannose'
+            else:
+                return 'Fucosylated'
+        else:
+            return 'Fucosylated'
+    elif d['HexNAc'] > 2:
+        return 'Complex'
+    elif d['HexNAc'] <= 2:
+        if 'Hex' in d:
+            if d['Hex'] <= 9 and d['Hex'] > 4:
+                return 'High Mannose'
+        return 'Paucimannose'
+
+
 # bf = By_File(f)
 # bf.frame.columns
 # bf.frame.shape
