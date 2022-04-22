@@ -3,40 +3,79 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['axes.formatter.useoffset'] = False
 from scipy.signal import argrelextrema
-from pyteomics import mzml, mzxml, auxiliary, mass
+import pyteomics
+from pyteomics import auxiliary, mass
 
 ###############################################################################
 
 class mzXML:
     '''Class representing .raw file for ETL'''
 
-    def __init__(self, mz_file, separate_levels=False):
-        self._file_path = mz_file
+    """Class constructed for mzXML data processing"""
+
+    def __init__(self, mz_file):
+        # convert file path to raw string
+        self.path_to_file = r"{}".format(mz_file)
+
+        # instantiate ms1 and ms2 data arrays
         self.ms1_data = None
         self.ms2_data = None
-        self.data = mzxml.read(mz_file, use_index=True)
 
-        if separate_levels:
-            self.ms1_data, self.ms2_data = self._create_arrays()
+        # read in data
+        self.data = pyteomics.mzxml.read(self.path_to_file, use_index=True)
+
+        # collect data using func(get_ms_data)
+        self.get_ms_data()
 
     def __repr__(self):
-        return f'mzXML object instantiated from {self._file_path}'
+        return f"mzXML object constructed from {self.path_to_file}"
 
-    def _create_arrays(self):
-        '''Private Function
+    def get_ms_data(self):
+        """
+        Extracts the MS1 and MS2 level data from file.
 
-        Called internally to instantiate MS1 and MS2 nd arrays.
-        '''
-        ms1, ms2 = [], []
+        self.ms1_data will be populated as a 3xN multidimensional array that
+        contains time, precursor_masses, and precursor_mass_intensity
+
+        self.ms2_data will be populated as a 5xN multidimensional array that
+        contains time, precursor_mass, precurcor_charge, fragment_ion_masses,
+        and fragment_ion_intensity
+
+        returns: None
+        """
+
+        # instantiate return variables
+        ms1_data = []
+        ms2_data = []
+
+        # iterate through each scan
+        # each scan is a dictionary/hash_table
         for scan in self.data:
-            time = scan['retentionTime']
-            masses = scan['m/z array']
-            ints = scan['intensity array']
-            if scan['msLevel'] == 1:
-                ms1.append([time, masses, ints])
-            else:
-                ms2.append([time, masses, ints])
-        return np.array(ms1), np.array(ms2)
+
+            # retention time, m/z values, and intensity values are found in every scan
+            time = scan["retentionTime"]
+            masses = scan["m/z array"]
+            intensities = scan["intensity array"]
+
+            # sort data into appropriate arrays
+            if scan["msLevel"] == 1:
+                ms1_data.append([time, masses, intensities])
+
+            elif scan["msLevel"] == 2:
+                # first collect additional info
+                precursor_info = scan["precursorMz"][0]
+                precursor_mass = precursor_info["precursorMz"]
+                precursor_charge = precursor_info["precursorCharge"]
+
+                ms2_data.append(
+                    [time, precursor_mass, precursor_charge, masses, intensities]
+                )
+        
+        # point class to multidimensional arrays
+        self.ms1_data = np.array(ms1_data)
+        self.ms2_data = np.array(ms2_data)
+
+        return
 
     def _precursor_to_csv(self, precursor_list, max_len=2000, path=None, intensities=False):
 
