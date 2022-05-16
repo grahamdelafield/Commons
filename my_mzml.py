@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 plt.rcParams['axes.formatter.useoffset'] = False
 from scipy.signal import argrelextrema
 import pyteomics
-from pyteomics import auxiliary, mass
+from pyteomics import auxiliary, mass, mzxml
 
 ###############################################################################
 
@@ -186,7 +186,7 @@ class mzXML:
         if self.ms1_data is None:
             data = self.data
         else: # ms1 data has already been created
-            data = self.ms1_Data
+            data = self.ms1_data
         xs, ys = [], []
         for _, scan in enumerate(data):
             if scan['msLevel'] == 1:
