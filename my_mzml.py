@@ -65,15 +65,15 @@ class mzXML:
                 # first collect additional info
                 precursor_info = scan["precursorMz"][0]
                 precursor_mass = precursor_info["precursorMz"]
-                precursor_charge = precursor_info["precursorCharge"]
+                precursor_charge = precursor_info.get("precursorCharge", None)
 
                 ms2_data.append(
                     [time, precursor_mass, precursor_charge, masses, intensities]
                 )
         
         # point class to multidimensional arrays
-        self.ms1_data = np.array(ms1_data)
-        self.ms2_data = np.array(ms2_data)
+        self.ms1_data = np.array(ms1_data, dtype='object')
+        self.ms2_data = np.array(ms2_data, dtype='object')
 
         return
 
