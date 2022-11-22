@@ -1,6 +1,16 @@
 import requests 
 import json
 
+def _get_subcell_location(response_portion: dict):
+    """Grab subcellular location from response."""
+    
+    comments = response_portion['comments']
+    # print(len(comments))
+    for c in comments:
+        if c['commentType'] == 'SUBCELLULAR LOCATION':
+            loc = c['subcellularLocations'][0]['location']['value']
+    return loc            
+
 def send_accessions(protein_accession: list) -> dict:
     """Takes list of Uniprot protein accessions, returns hash map of gene names.
     
@@ -21,10 +31,11 @@ def send_accessions(protein_accession: list) -> dict:
     resp = json.loads(r.text)
     return resp
 
-def parse_response(uniprot_resp: dict):
+def parse_response(uniprot_resp: dict, wanted_value: str):
     """Parses uniprot response.
     
     :arg unriprot_resp: (dict)  response from uniprot
+    :arg wanted_value:  (str)   value requested from response
     
     :returns:   dict(accession -> gene)
     """
@@ -45,16 +56,24 @@ def parse_response(uniprot_resp: dict):
         
         # some accessions do not have associated genes
         try:
-            found_gene = entry["genes"][0]["geneName"]["value"]
+            match wanted_value:
+                case "gene":
+                    info_result = entry["genes"][0]["geneName"]["value"]
+                case "description":
+                    info_result = entry['proteinDescription']['recommendedName']['fullName']['value']
+                case "sc_location":
+                    info_result = _get_subcell_location(entry)
+                case other:
+                    raise Exception(f"{other} is not currently supported in the uniprot caller.")
         except:
-            found_gene = None
+            info_result = None
             count += 1
         
         # add gene to map
-        lookup[val] = found_gene
+        lookup[val] = info_result
     
     # provide warning
     if count > 0:
-        print(f"{count} protein accessions were not mapped!")
+        print(f"{count} {wanted_value}(s) were not mapped!")
 
     return lookup
