@@ -88,6 +88,51 @@ def make_venn3(data_column: str, ident_column: str, dataframe):
 
     return (len(a_only), len(b_only), len(ab), len(c_only), len(ac), len(bc), len(abc)), group_names
 
+def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
+    """
+    Count occurences of data in specified columns. Only keep rows containing values
+    that keep the minimum number of requirements.
+    
+    :arg dataframe: 
+        (pd.DataFrame)  dataframe containing data
+    :arg column:
+        (str)   column name containing data to bew counted
+    :arg needed:
+        (int)   number of occurrences required for row to be kept
+
+    :arg filter:
+        (str)   how data should be filtered. One of ['exact', 'greater_equal',
+                'greater', 'less', 'less_equal']
+        
+    returns: reduced dataframe
+    """
+    # make sure filter does not force error
+    expected_filters = ['exact', 'greater_equal', 'greater', 'less', 'less_equal']
+    assert (
+        filter.isin(expected_filters),
+        ValueError(f"Keyword 'filter' must be one of {expected_filters}")
+    )
+
+    # get value counts of specified column
+    counts = dataframe[column].value_counts()
+
+    # find keys that have required count
+    match filter:
+        case 'exact':
+            valid = counts[counts.values==needed].keys()
+        case 'greater_equal':
+            valid = counts[counts.values>=needed].keys()
+        case 'greater':
+            valid = counts[counts.values>needed].keys()
+        case 'less_equal':
+            valid = counts[counts.values<=needed].keys()
+        case 'less':
+            valid = counts[counts.values<needed].keys()
+
+    # keep only rows containing data
+    kept = dataframe[dataframe[column].isin(valid)]
+    return kept
+
 def fancy_dendrogram(*args, **kwargs):
     max_d = kwargs.pop('max_d', None)
     if max_d and 'color_threshold' not in kwargs:
