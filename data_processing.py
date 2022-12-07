@@ -109,7 +109,7 @@ def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
     # make sure filter does not force error
     expected_filters = ['exact', 'greater_equal', 'greater', 'less', 'less_equal']
     assert (
-        filter.isin(expected_filters),
+        filter in expected_filters,
         ValueError(f"Keyword 'filter' must be one of {expected_filters}")
     )
 
