@@ -61,6 +61,8 @@ def parse_response(uniprot_resp: dict, wanted_value: str):
                     info_result = entry["genes"][0]["geneName"]["value"]
                 case "description":
                     info_result = entry['proteinDescription']['recommendedName']['fullName']['value']
+                case "sequence":
+                    info_result = entry["sequence"]["value"]
                 case "sc_location":
                     info_result = _get_subcell_location(entry)
                 case other:
