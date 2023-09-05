@@ -204,25 +204,30 @@ def prof_to_cent(xs, ys):
     return xs, ys
 
 
-def mass_error(measured, exact):
+def mass_error(m1: float, m2: float):
     """
-    Returns mass error between measured and theoretical values.
+    Caluclates the ppm error between two masses.
+    :arg m1:    (float) mass 1
+    :arg m2:    (float) mass 2
     """
-    dif = measured - exact
-    quo = dif / exact
-    return quo * 10 ** 6
+
+    diff = m1 - m2
+    quot = diff / m1
+    return quot * 1e6
 
 
-def mass_tolerance(mass, ppm=10):
+def mass_tolerance(mass: float, ppm: int=20):
     """
-    Function that returns low and high end of mass tolerance range.
-
-    :param mass: (float) mass used to calculated +/- tolerance
-    :param ppm: (int) ppm mass error allowed
+    Returns the lower and upper values of a defined tolerance window.
+    Windows have the defined width on either side of the specified mass.
+    
+    :arg mass:  (float) the mass of interest
+    :arg ppm:   (float) the desired ppm on either side of the mass
     """
-    low = ppm * mass / 1e6 - mass
-    high = ppm * mass / 1e6 + mass
-    return abs(low), abs(high)
+    val_arr = np.array([ppm, ppm * -1])
+    
+    val = (val_arr / 1e6) * mass - mass
+    return val * -1
 
 
 modifications = {
