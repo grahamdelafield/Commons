@@ -156,3 +156,19 @@ def fancy_dendrogram(*args, **kwargs):
         if max_d:
             plt.axhline(y=max_d, c='k')
     return ddata
+
+def chunk(arr, max_num):
+    """
+    <generator>
+    
+    Takes list of values or masses, chunks the list
+    according to a predefined step size.
+    
+    :arg arr:   (list, np.array)    the list of masses to be combined
+    :arg max_num:   (int)   maximum number of values to exist in chunks
+    
+    yields list
+    """
+    # print(len(arr)//max_num)
+    for i in range(0, len(arr)//max_num):
+        yield arr[i::len(arr)//max_num]
