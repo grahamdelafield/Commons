@@ -11,14 +11,20 @@ def send_accessions(protein_accession: list) -> dict:
     resp = dict()
 
     for i, acc in enumerate(protein_accession, start=1):    
-        # include in url
-        base_url = f"https://api.glygen.org/protein/detail/{acc}/"
-    
-        # get response
-        r = requests.get(base_url)
+        
+        try:
+            
+            # include in url
+            base_url = f"https://api.glygen.org/protein/detail/{acc}/"
+        
+            # get response
+            r = requests.get(base_url)
 
-        # dump into json object
-        resp[acc] = json.loads(r.text)
+            # dump into json object
+            resp[acc] = json.loads(r.text)
+
+        except ValueError:
+            print(f"Error in {acc}, which can't be mapped")
 
         print(f"{(i / len(protein_accession))*100:.2f}%", end="\r")
 
