@@ -5,7 +5,7 @@
 import pandas as pd
 import re 
 
-class msf_processor:
+class MSFProcessor:
     def __init__(self, files: list):
         
         # make sure files are list of strings
