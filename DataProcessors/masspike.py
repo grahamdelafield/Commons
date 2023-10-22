@@ -99,8 +99,8 @@ class MassPikeProcessor:
         columns = [c.lower().replace(" ", "_") for c in self.data.columns]
 
         # replace chars
-        regs = [r"\&\#916\;", r"\#"]
-        repls = ["delta_", "num"]
+        regs = [r"\&\#916\;", r"\#", r"[\+\.\\\/]"]
+        repls = ["delta_", "num", ""]
 
         for i, column in enumerate(columns):
             for j, reg in enumerate(regs):
