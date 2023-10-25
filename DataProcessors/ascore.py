@@ -20,11 +20,11 @@ class AscoreParser:
         if isinstance(files, str):
             files = [files]
         
-        #TODO
         # run check to make sure file is of right type, return correct parser and delimiter
         all_files_pass = self._check_file_format(files)
         if all_files_pass:
             self._read_data(files)
+            self._format_data()
 
     def _check_file_format(self, files: list) -> [typing.Callable, str]:
         """Check for acceptable file type, columns, """
@@ -76,14 +76,14 @@ class AscoreParser:
 
     def _format_columns(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Formats column names, and data within.
+        Formats column names
         
-        :arg data:  (pd.DataFrame) pandas dataframe with unformatted data
+        :arg data:  (pd.DataFrame) pandas dataframe with unformatted columns
         """
-        formatted_data = data.copy()
+        formatted_frame = data.copy()
         new_columns = []
 
-        columns = formatted_data.columns 
+        columns = formatted_frame.columns 
         for column in columns:
             # find capitals
             capitals = re.finditer(r"[A-Z]", column)
@@ -97,9 +97,54 @@ class AscoreParser:
             new_name = "_".join(words)
             new_columns.append(new_name)
 
-        formatted_data.columns = new_columns
+        formatted_frame.columns = new_columns
 
-        return formatted_data
+        return formatted_frame
+
+    def _format_data(self) -> None:
+        """Formats columns within dataframe"""
+
+        formatted_data = self.data.copy()
+
+        # fill in missing positions
+        formatted_data.loc[:, "alt_sites"] = formatted_data.alt_sites.fillna("")
+
+        # turn tuples into positions
+        formatted_data.loc[:, "alt_sites"] = formatted_data.apply(self.position_tuples, axis=1)
+
+        # split scores
+        formatted_data.loc[:, "ascores"] = formatted_data.ascores.str.split(";")
+
+        # explode dataframe based on sites and scores
+        formatted_data = formatted_data.explode(["ascores", "alt_sites"])
+
+        # reformat sites column
+        formatted_data.loc[:, "alt_sites"] = formatted_data.alt_sites.map(lambda x: int(x[0]))
+
+        self.data = formatted_data
+
+
+    def position_tuples(self, row: pd.Series) -> list:
+        """
+        Changes string positions to tuples of ints.
+        
+        :arg row:   (pd.Series) row of dataframe
+        """
+        # grab and split sites
+        sites = row["alt_sites"]
+        site_str = sites.split(";")
+
+        # create new tuples
+        new_info = []
+        for group in site_str:
+            group = group.split(",")
+
+            # when no site was localized, there is an empty string
+            # we put in a 0 for posterity
+            group = [int(i) if i!="" else 0 for i in group]
+            new_info.append(tuple(group))
+            
+        return new_info
 
 
 if __name__=="__main__":
