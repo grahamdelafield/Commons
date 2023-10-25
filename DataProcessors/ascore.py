@@ -146,6 +146,29 @@ class AscoreParser:
             
         return new_info
 
+    def pos_to_symbol(self, row: pd.Series, buffer_len=15) -> pd.DataFrame:
+        """
+        Adds hash (#) c-terminal to the localized position.
+
+        :arg row:           (pd.Series) row of dataframe
+        :arg buffer_len:    (int)   the expected length of all truncated sequences
+        """
+        # grab position of mod and sequence
+        pos = row["alt_site"] 
+        seq = row["localized_sequence"]
+
+        # remove any other mods found
+        seq = re.sub(r"\[\d*\]", "", seq)
+
+        # add hash to sequence
+        mod_seq = seq[:pos] + "#" + seq[pos:]
+        
+        # create truncated sequence
+        # the localized position will be the first amino acid
+        trunc_seq = seq[pos-1:]
+        trunc_seq = trunc_seq + "x"*(buffer_len-len(trunc_seq))
+
+        return mod_seq, trunc_seq
 
 if __name__=="__main__":
     a = AscoreParser(r"/Users/delafield/code/python/pyascore_test/shift_18.tsv")
