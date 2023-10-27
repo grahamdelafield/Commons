@@ -5,8 +5,10 @@
 
 from pathlib import Path
 import pandas as pd
+import matplotlib.pyplot as plt
 import re
 import typing
+import logomaker
 
 class AscoreParser:
     """Class used to ETL data output from pyAscore CLI"""
@@ -25,6 +27,8 @@ class AscoreParser:
         if all_files_pass:
             self._read_data(files)
             self._format_data()
+        
+        self.make_logo(self.data)
 
     def _check_file_format(self, files: list) -> [typing.Callable, str]:
         """Check for acceptable file type, columns, """
@@ -119,10 +123,18 @@ class AscoreParser:
         formatted_data = formatted_data.explode(["ascores", "alt_sites"])
 
         # reformat sites column
-        formatted_data.loc[:, "alt_sites"] = formatted_data.alt_sites.map(lambda x: int(x[0]))
+        formatted_data.loc[:, "alt_sites"] = formatted_data.alt_sites.map(lambda x: [pos for pos in x])
+
+        # explode based on possible sites
+        formatted_data = formatted_data.explode("alt_sites").reset_index(drop=True)
+
+
+        # transform locations to peptides
+        pos = formatted_data.apply(self.pos_to_symbol, axis=1, result_type="expand")
+        pos.columns = ["mod_peptide", "trunc_peptide"]
+        formatted_data = formatted_data.merge(pos, left_index=True, right_index=True)
 
         self.data = formatted_data
-
 
     def position_tuples(self, row: pd.Series) -> list:
         """
@@ -169,7 +181,39 @@ class AscoreParser:
         trunc_seq = trunc_seq + "x"*(buffer_len-len(trunc_seq))
 
         return mod_seq, trunc_seq
+    
+    def pos_to_symbol(self, row: pd.Series, expected_len: int=15) -> pd.Series:
+        """
+        Takes possible localization and returns annotated and truncated peptides.
+        
+        :arg row: (pd.Series) row of dataframe
+        :arg expected_len:  (int) the desired length of all truncated peptides.
+                                  This must be in place to make Logo
+        """
+        pos = row["alt_sites"] 
+        seq = row["localized_sequence"]
+        seq = re.sub(r"\[\d*\]", "", seq)
+        mod_seq = seq[:pos] + "#" + seq[pos:]
+        
+        trunc_seq = seq[pos-1:]
+        trunc_seq = trunc_seq + "x"*(expected_len-len(trunc_seq))
+
+        return mod_seq, trunc_seq
+
+
+    def make_logo(self, data: pd.DataFrame):
+        logo_mat = logomaker.alignment_to_matrix(data.trunc_peptide)
+        logo_mat = logo_mat.drop("x", axis=1)
+
+        _, ax = plt.subplots(1, 1, figsize=(1, 3))
+        tl = logomaker.Logo(
+            logo_mat.iloc[0:1, :],
+            color_scheme="weblogo_protein",
+            ax=ax)
+        tl.style_spines(visible=False)
+        tl.style_spines(spines=['left', 'bottom'], visible=True)
+        plt.show()
 
 if __name__=="__main__":
-    a = AscoreParser(r"/Users/delafield/code/python/pyascore_test/shift_18.tsv")
+    a = AscoreParser(r"/Users/delafield/code/python/pyascore_test/WaterLoss/shift_18.tsv")
     print(a.data)
