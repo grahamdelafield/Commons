@@ -166,7 +166,7 @@ class AscoreParser:
         :arg buffer_len:    (int)   the expected length of all truncated sequences
         """
         # grab position of mod and sequence
-        pos = row["alt_site"] 
+        pos = row["alt_sites"] 
         seq = row["localized_sequence"]
 
         # remove any other mods found
@@ -182,25 +182,6 @@ class AscoreParser:
 
         return mod_seq, trunc_seq
     
-    def pos_to_symbol(self, row: pd.Series, expected_len: int=15) -> pd.Series:
-        """
-        Takes possible localization and returns annotated and truncated peptides.
-        
-        :arg row: (pd.Series) row of dataframe
-        :arg expected_len:  (int) the desired length of all truncated peptides.
-                                  This must be in place to make Logo
-        """
-        pos = row["alt_sites"] 
-        seq = row["localized_sequence"]
-        seq = re.sub(r"\[\d*\]", "", seq)
-        mod_seq = seq[:pos] + "#" + seq[pos:]
-        
-        trunc_seq = seq[pos-1:]
-        trunc_seq = trunc_seq + "x"*(expected_len-len(trunc_seq))
-
-        return mod_seq, trunc_seq
-
-
     def make_logo(self, data: pd.DataFrame):
         logo_mat = logomaker.alignment_to_matrix(data.trunc_peptide)
         logo_mat = logo_mat.drop("x", axis=1)
