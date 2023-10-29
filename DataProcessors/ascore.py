@@ -117,6 +117,7 @@ class AscoreParser:
         formatted_data.loc[:, "alt_sites"] = formatted_data.apply(self.position_tuples, axis=1)
 
         # split scores
+        formatted_data.loc[:, "ascores"] = formatted_data.astype(str)
         formatted_data.loc[:, "ascores"] = formatted_data.ascores.str.split(";")
 
         # explode dataframe based on sites and scores
@@ -196,5 +197,5 @@ class AscoreParser:
         plt.show()
 
 if __name__=="__main__":
-    a = AscoreParser(r"/Users/delafield/code/python/pyascore_test/WaterLoss/shift_18.tsv")
+    a = AscoreParser(r"/Users/delafield/code/python/pyascore_test/AcmMass/Shift_7104.tsv")
     print(a.data)
