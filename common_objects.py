@@ -5,3 +5,8 @@ alt_axis = alt.Axis(
     labelFontWeight=600,
     labelFlush=False
 ) 
+
+choice_colors = {
+    "d_blue": "#2a385b",
+    "orange": "#c6601b"
+}
