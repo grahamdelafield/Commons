@@ -108,10 +108,10 @@ def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
     """
     # make sure filter does not force error
     expected_filters = ['exact', 'greater_equal', 'greater', 'less', 'less_equal']
-    assert (
-        filter in expected_filters,
-        ValueError(f"Keyword 'filter' must be one of {expected_filters}")
-    )
+    
+    assertion = filter in expected_filters
+    val_err = ValueError(f"Keyword 'filter' must be one of {expected_filters}")
+    assert assertion, val_err
 
     # get value counts of specified column
     counts = dataframe[column].value_counts()
