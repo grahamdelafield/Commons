@@ -24,7 +24,7 @@ calico_colors = {
     "d_yellow":"#FF8C00",
     "l_yellow":"#FFAA00",
     "d_red":"#B2143D",
-    "l_red":"#D311642",
+    "l_red":"#D31642",
     "d_blue":"#05B5DD",
     "l_blue":"#38CCF7",
     "d_gray":"#403C3C",
