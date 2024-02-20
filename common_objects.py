@@ -19,15 +19,31 @@ choice_colors = {
 }
 
 calico_colors = {
-    "d_green":"#28A049",
     "l_green":"#30BC5B",
-    "d_yellow":"#FF8C00",
-    "l_yellow":"#FFAA00",
-    "d_red":"#B2143D",
-    "l_red":"#D31642",
-    "d_blue":"#05B5DD",
+    "d_green":"#28A049",
     "l_blue":"#38CCF7",
-    "d_gray":"#403C3C",
-    "m_gray":"#6E6D6D",
+    "d_blue":"#05B5DD",
+    "l_yellow":"#FFAA00",
+    "d_yellow":"#FF8C00",
+    "l_red":"#D31642",
+    "d_red":"#B2143D",
     "l_gray":"#AAAAAA",
+    "m_gray":"#6E6D6D",
+    "d_gray":"#403C3C",
+}
+
+calico_light = {
+    "l_green":"#30BC5B",
+    "l_blue":"#38CCF7",
+    "l_yellow":"#FFAA00",
+    "l_red":"#D31642",
+    "l_gray":"#AAAAAA",
+}
+
+calico_dark = {
+    "d_green":"#28A049",
+    "d_blue":"#05B5DD",
+    "d_yellow":"#FF8C00",
+    "d_red":"#B2143D",
+    "d_gray":"#403C3C",
 }
