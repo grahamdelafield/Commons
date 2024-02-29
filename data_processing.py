@@ -134,6 +134,7 @@ def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
     return kept
 
 def fancy_dendrogram(*args, **kwargs):
+    """Create dendrogram from hierarchical clustering data"""
     max_d = kwargs.pop('max_d', None)
     if max_d and 'color_threshold' not in kwargs:
         kwargs['color_threshold'] = max_d
@@ -172,3 +173,32 @@ def chunk(arr, max_num):
     # print(len(arr)//max_num)
     for i in range(0, len(arr)//max_num):
         yield arr[i::len(arr)//max_num]
+
+def alignment_to_bits(alignment_df):
+    """
+    Takes an alignment matrix from LogoMaker and returns 
+    the same matrix in bits
+    
+    :arg alignment_df:  (pd.DataFrame)  The alignment matrix from LogoMaker
+    """
+
+    align_transpose = alignment_df.T.copy()
+
+    # calcualte % occupancy by each amino acid in position
+    for column in align_transpose.columns:
+        align_transpose[column] = align_transpose[column]/align_transpose[column].sum()
+
+    # calculate base probability
+    initial = 20 * -0.05 * np.log2(0.05)
+    
+    for column in align_transpose:
+        col_vals = align_transpose[column].values
+        col_vals = col_vals[np.where(col_vals>0)]
+
+        running_sum = 0
+        for val in col_vals:
+            running_sum += -1*val*np.log2(val)
+
+        align_transpose[column] = align_transpose[column]*(initial-running_sum)
+
+    return align_transpose.T
