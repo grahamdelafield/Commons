@@ -6,6 +6,13 @@ alt_axis = alt.Axis(
     labelFlush=False
 )
 
+nominal_axis = alt.Axis(
+    labelAngle=0,
+    labelFontSize=14,
+    labelFontWeight=600,
+    labelFlush=False
+)
+
 choice_colors = {
     "d_blue": "#2a385b",
     "m_blue": "#4f618e",
