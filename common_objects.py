@@ -13,6 +13,11 @@ nominal_axis = alt.Axis(
     labelFlush=False
 )
 
+alt_header = alt.Header(
+    labelFontSize=14,
+    labelFontWeight=600,
+)
+
 choice_colors = {
     "d_blue": "#2a385b",
     "m_blue": "#4f618e",
@@ -23,6 +28,16 @@ choice_colors = {
     "d_gray": "#575757",
     "m_gray": "#727272",
     "l_gray": "#999999",
+}
+
+choice_pallet = {
+    "blue": "#2A385B",
+    "orange": "#AF4A06",
+    "green": "#6E9075",
+    "white": "#D6D6D6",
+    "rose": "##a58891",
+    "gray": "#727272",
+
 }
 
 calico_colors = {
@@ -37,6 +52,20 @@ calico_colors = {
     "l_gray":"#AAAAAA",
     "m_gray":"#6E6D6D",
     "d_gray":"#403C3C",
+}
+
+modified_calico = {
+    "l_green": '#30BC5B',
+    "d_green": '#249243',
+    "l_blue": '#57d6fc',
+    "d_blue":  '#0497d1',
+    "l_yellow":  '#FFAA00',
+    "d_yellow": '#dd7a00',
+    "l_red":  '#e6314c',
+    "d_red": '#b21414',
+    "l_gray": '#AAAAAA',
+    "m_gray":  '#6E6D6D',
+    "d_gray":  '#403C3C'
 }
 
 calico_light = {
