@@ -18,7 +18,7 @@ def send_accessions(protein_accession: list) -> dict:
             base_url = f"https://api.glygen.org/protein/detail/{acc}/"
         
             # get response
-            r = requests.get(base_url)
+            r = requests.get(base_url, timeout=300)
 
             # dump into json object
             resp[acc] = json.loads(r.text)
