@@ -17,22 +17,22 @@ class mzXML:
 
     def __init__(self, mz_file):
         # convert file path to raw string
-        self.path_to_file = r"{}".format(mz_file)
+        self.path_to_file = f"{mz_file}"
 
         # instantiate ms1 and ms2 data arrays
         self.ms1_data = None
         self.ms2_data = None
 
         # read in data
-        self.data = pyteomics.mzxml.read(self.path_to_file, use_index=True)
+        self.data = pyteomics.mzxml.read(self.path_to_file)
 
-        # collect data using func(get_ms_data)
-        self.get_ms_data()
+        # collect data using func(_get_ms_data)
+        self._get_ms_data()
 
     def __repr__(self):
         return f"mzXML object constructed from {self.path_to_file}"
 
-    def get_ms_data(self):
+    def _get_ms_data(self):
         """
         Extracts the MS1 and MS2 level data from file.
 
@@ -64,19 +64,22 @@ class mzXML:
 
             elif scan["msLevel"] == 2:
                 # first collect additional info
-                precursor_info = scan["precursorMz"][0]
-                precursor_mass = precursor_info["precursorMz"]
-                precursor_charge = precursor_info.get("precursorCharge", None)
+                precursor_info = scan["precursorMz"]
+                
+                # iterate in case there are mulitplexed scans
+                for precursor in precursor_info:
+                    precursor_mass = precursor["precursorMz"]
+                    precursor_charge = precursor.get("precursorCharge", None)
 
-                ms2_data.append(
-                    [time, precursor_mass, precursor_charge, masses, intensities]
-                )
-
+                    ms2_data.append(
+                        [time, precursor_mass, precursor_charge, masses, intensities]
+                    )
+        masses = np.array(masses)
         # point class to multidimensional arrays
         self.ms1_data = np.array(ms1_data, dtype="object")
         self.ms2_data = np.array(ms2_data, dtype="object")
 
-        return
+        print(f"{self.ms1_data.shape[0]} MS1 scans and {self.ms2_data.shape[0]} MS2 scans collected")
 
     def _precursor_to_csv(
         self, precursor_list, max_len=2000, path=None, intensities=False
@@ -109,7 +112,6 @@ class mzXML:
         df = df.iloc[:max_len, : intensities + 1]
         df.to_csv(path, index=False, header=False)
         print(f"...precursors.csv file created in {path}")
-        return
 
     def get_tree(self):
         return auxiliary.print_tree(next(self.data))
@@ -177,6 +179,17 @@ class mzXML:
             for arr in ints:
                 ys.append(np.max(arr))
         return np.array(xs), np.array(ys)
+    
+    def regularize_data(self, arr):
+        """Makes each element in array equal size"""
+        longest = np.max(np.array([a.shape[0] for a in arr]))
+        
+        new_elements = []
+        for elem in arr:
+            zeros = np.zeros(shape=(longest))
+            zeros[:elem.shape[0]] = elem
+            new_elements.append(zeros)
+        return np.array(new_elements)
 
     def ms1_search(self, val_list, num_dec=2):
         """
@@ -187,7 +200,7 @@ class mzXML:
             data = self.data
         else:  # ms1 data has already been created
             data = self.ms1_data
-        print(data)
+        
         xs, ys = [], []
         for _, scan in enumerate(data):
             if scan["msLevel"] == 1:
@@ -257,6 +270,42 @@ class mzXML:
         if frequency:
             return np.array(xs), np.array(ys), count
         return np.array(xs), np.array(ys)
+    
+    def prm_transition_extract(self, prec_mass, expected_transitions, tolerance=20):
+        """Take in precursor mass and the transitions desired, output trace"""
+
+        time, precursor_mass = self.ms2_data[:, 0], self.ms2_data[:, 1]
+        frag_masses = self.ms2_data[:, 3]
+        frag_int = self.ms2_data[:, 4]
+
+        prec_low, prec_high = mass_tolerance(prec_mass, ppm=tolerance)
+        prec_index = np.where(np.logical_and(precursor_mass>=prec_low, precursor_mass<=prec_high))
+        
+        time_points = time[prec_index]
+        if len(prec_index[0]) == 0:
+            raise Exception(f"No Precursor mass {prec_mass} found in dataset")
+        
+        frag_masses = self.regularize_data(frag_masses[prec_index])
+        frag_int = self.regularize_data(frag_int[prec_index])
+
+        for transition in expected_transitions:
+
+            data_points = np.zeros(shape=time_points.shape)
+
+            trans_low, trans_high = mass_tolerance(transition, ppm=25)
+
+            frag_idx = np.where(np.logical_and(frag_masses>=trans_low, frag_masses<=trans_high))
+            data_points[frag_idx[0]] = frag_int[frag_idx]
+
+            sub = pd.DataFrame({
+                "precursor":prec_mass,
+                "time":time_points,
+                "transition_mz": transition, 
+                "transition_intensity": data_points
+            })
+
+            return sub
+
 
 
 ###############################################################################
