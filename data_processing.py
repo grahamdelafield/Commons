@@ -202,3 +202,16 @@ def alignment_to_bits(alignment_df):
         align_transpose[column] = align_transpose[column]*(initial-running_sum)
 
     return align_transpose.T
+
+def fc_significance(row, p, f):
+    """Operate on pandas dataframe to determine statistically signficant fold change."""
+    pval = row[p]
+    fold_change = row[f]
+    if pval > 0.05:
+        return "not significant" 
+    if fold_change >= 2:
+        return "upregulated"
+    elif fold_change <= -2:
+        return "downregulated"
+    else:
+        return "not significant"
