@@ -13,7 +13,7 @@ import re
 class MassPikeProcessor:
     """Class for extracting, transforming, and loading data exported from MassPike."""
 
-    def __init__(self, files: [list, str], **kwargs) -> None:
+    def __init__(self, files: list|str, **kwargs) -> None:
         """
         Read and check all files passed in.
         :arg files:     (list or str)   MassPike files to be read in
@@ -114,3 +114,26 @@ class MassPikeProcessor:
         self.data = self.data[columns]
 
         return 
+    
+    def add_special_column(self, col_name: str, col_values: str|int|float|list):
+        """
+        Add new column to dataframe.
+        
+        :arg col_name:      (str)   name of new column
+        :arg col_values:    (any)   values to be inserted in column
+        """
+
+        self.data.loc[:, col_name] = col_values
+
+        return 
+    
+    def join_processors(self, new):
+        """
+        Add current second instance of MassPikeProcessor to current.
+        
+        :arg new:   (MassPikeProcessor) Second instance of MassPikeProcessor to
+                                        be joined with current
+        """
+
+        self.data = pd.concat([self.data, new.data])
+        # self.files.append(new.files)
