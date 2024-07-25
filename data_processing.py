@@ -174,6 +174,20 @@ def chunk(arr, max_num):
     for i in range(0, len(arr)//max_num):
         yield arr[i::len(arr)//max_num]
 
+def consecutive_chunks(arr: list, N: int):
+    """
+    Iterate through array and generate chunks of specified length N. These chunks
+    are constrainted to be adjacent to one another in the array.
+
+    :arg arr:
+        (list, np.array)    array to be parsed
+    :arg N:
+        (int)               length of chunk to be generated
+    """
+    for i in range(0, len(arr), N):
+        yield arr[i:i+N]
+
+
 def alignment_to_bits(alignment_df):
     """
     Takes an alignment matrix from LogoMaker and returns 
