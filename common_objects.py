@@ -18,6 +18,17 @@ alt_header = alt.Header(
     labelFontWeight=600,
 )
 
+sci_min_axis=alt.Axis(
+                grid=False,
+                domainWidth=3,
+                domainColor="#000000",
+                tickColor="#000000",
+                tickWidth=2,
+                labelFontSize=14,
+                labelFontWeight=600,
+                labelFlush=False
+            )
+
 choice_colors = {
     "d_blue": "#2a385b",
     "m_blue": "#4f618e",
