@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from scipy.cluster import hierarchy
-
+from modlamp.descriptors import PeptideDescriptor
 
 def get_files(directory='.', exts=['.']):
     '''
@@ -88,7 +88,7 @@ def make_venn3(data_column: str, ident_column: str, dataframe):
 
     return (len(a_only), len(b_only), len(ab), len(c_only), len(ac), len(bc), len(abc)), group_names
 
-def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
+def get_valid_counts(dataframe, column: str, needed: int, criteria='exact'):
     """
     Count occurences of data in specified columns. Only keep rows containing values
     that keep the minimum number of requirements.
@@ -100,24 +100,24 @@ def get_valid_counts(dataframe, column: str, needed: int, filter='exact'):
     :arg needed:
         (int)   number of occurrences required for row to be kept
 
-    :arg filter:
+    :arg criteria:
         (str)   how data should be filtered. One of ['exact', 'greater_equal',
                 'greater', 'less', 'less_equal']
         
     returns: reduced dataframe
     """
     # make sure filter does not force error
-    expected_filters = ['exact', 'greater_equal', 'greater', 'less', 'less_equal']
+    allowed_criteria = ['exact', 'greater_equal', 'greater', 'less', 'less_equal']
     
-    assertion = filter in expected_filters
-    val_err = ValueError(f"Keyword 'filter' must be one of {expected_filters}")
+    assertion = criteria in allowed_criteria
+    val_err = ValueError(f"Keyword 'criteria' must be one of {allowed_criteria}")
     assert assertion, val_err
 
     # get value counts of specified column
     counts = dataframe[column].value_counts()
 
     # find keys that have required count
-    match filter:
+    match criteria:
         case 'exact':
             valid = counts[counts.values==needed].keys()
         case 'greater_equal':
@@ -229,3 +229,15 @@ def fc_significance(row, p, f, change_threshold=2):
         return "downregulated"
     else:
         return "not significant"
+    
+def pep_desc(seq: str, scale="gravy") -> float:
+    """
+    Takes in peptide sequence and returns descriptor score.
+    
+    :arg seq:   (str)   peptide sequnce on which score will be calculated
+    :arg scale: (str)   one of the approved scales in Modlamp.PeptideDescriptor
+    
+    returns float"""
+    desc = PeptideDescriptor(seq, scale)
+    desc.calculate_global()
+    return desc.descriptor[0][0]
