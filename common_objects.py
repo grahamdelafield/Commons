@@ -29,6 +29,13 @@ sci_min_axis=alt.Axis(
                 labelFlush=False
             )
 
+volcano_legend = alt.Legend(
+    orient="bottom",
+    direction="horizontal",
+    labelFontWeight=600,
+    labelFontSize=12
+)
+
 choice_colors = {
     "d_blue": "#2a385b",
     "m_blue": "#4f618e",
