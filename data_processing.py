@@ -241,3 +241,23 @@ def pep_desc(seq: str, scale="gravy") -> float:
     desc = PeptideDescriptor(seq, scale)
     desc.calculate_global()
     return desc.descriptor[0][0]
+
+
+def sequence_logo_modifier(logo, peptide_length, **kwargs):
+    """
+    Takes in sequence logo from package Logomaker and returns logo with modified
+    attributes.
+    
+    :arg logo:  (Logomaker.Logo)    sequence logo to be modified
+    """
+    hfont = {'fontname':'Arial', 'weight':"bold", "size":12}
+
+    logo.ax.set_xticklabels(range(-1, peptide_length+2, 2),  **hfont)
+    logo.ax.spines[['right', 'top']].set_visible(False)
+    y_labels = logo.ax.get_yticklabels()
+    logo.ax.set_ylabel("Bits", **hfont)
+    logo.ax.set_xlabel("Position", **hfont)
+    logo.ax.set_yticklabels(y_labels, **hfont)
+    logo.ax.set_title(kwargs.get("title", "Untitled Logo"), **hfont)
+
+    return logo 
