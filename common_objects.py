@@ -1,16 +1,9 @@
-import altair as alt 
+import altair as alt
 
-alt_axis = alt.Axis(
-    labelFontSize=14,
-    labelFontWeight=600,
-    labelFlush=False
-)
+alt_axis = alt.Axis(labelFontSize=14, labelFontWeight=600, labelFlush=False)
 
 nominal_axis = alt.Axis(
-    labelAngle=0,
-    labelFontSize=14,
-    labelFontWeight=600,
-    labelFlush=False
+    labelAngle=0, labelFontSize=14, labelFontWeight=600, labelFlush=False
 )
 
 alt_header = alt.Header(
@@ -18,22 +11,19 @@ alt_header = alt.Header(
     labelFontWeight=600,
 )
 
-sci_min_axis=alt.Axis(
-                grid=False,
-                domainWidth=3,
-                domainColor="#000000",
-                tickColor="#000000",
-                tickWidth=2,
-                labelFontSize=14,
-                labelFontWeight=600,
-                labelFlush=False
-            )
+sci_min_axis = alt.Axis(
+    grid=False,
+    domainWidth=3,
+    domainColor="#000000",
+    tickColor="#000000",
+    tickWidth=2,
+    labelFontSize=14,
+    labelFontWeight=600,
+    labelFlush=False,
+)
 
 volcano_legend = alt.Legend(
-    orient="bottom",
-    direction="horizontal",
-    labelFontWeight=600,
-    labelFontSize=12
+    orient="bottom", direction="horizontal", labelFontWeight=600, labelFontSize=12
 )
 
 choice_colors = {
@@ -55,49 +45,68 @@ choice_pallet = {
     "white": "#D6D6D6",
     "rose": "##a58891",
     "gray": "#727272",
-
 }
 
 calico_colors = {
-    "l_green":"#30BC5B",
-    "d_green":"#28A049",
-    "l_blue":"#38CCF7",
-    "d_blue":"#05B5DD",
-    "l_yellow":"#FFAA00",
-    "d_yellow":"#FF8C00",
-    "l_red":"#D31642",
-    "d_red":"#B2143D",
-    "l_gray":"#AAAAAA",
-    "m_gray":"#6E6D6D",
-    "d_gray":"#403C3C",
+    "l_green": "#30BC5B",
+    "d_green": "#28A049",
+    "l_blue": "#38CCF7",
+    "d_blue": "#05B5DD",
+    "l_yellow": "#FFAA00",
+    "d_yellow": "#FF8C00",
+    "l_red": "#D31642",
+    "d_red": "#B2143D",
+    "l_gray": "#AAAAAA",
+    "m_gray": "#6E6D6D",
+    "d_gray": "#403C3C",
 }
 
 modified_calico = {
-    "l_green": '#30BC5B',
-    "d_green": '#249243',
-    "l_blue": '#57d6fc',
-    "d_blue":  '#0497d1',
-    "l_yellow":  '#FFAA00',
-    "d_yellow": '#dd7a00',
-    "l_red":  '#e6314c',
-    "d_red": '#b21414',
-    "l_gray": '#AAAAAA',
-    "m_gray":  '#6E6D6D',
-    "d_gray":  '#403C3C'
+    "l_green": "#30BC5B",
+    "d_green": "#249243",
+    "l_blue": "#57d6fc",
+    "d_blue": "#0497d1",
+    "l_yellow": "#FFAA00",
+    "d_yellow": "#dd7a00",
+    "l_red": "#e6314c",
+    "d_red": "#b21414",
+    "l_gray": "#AAAAAA",
+    "m_gray": "#6E6D6D",
+    "d_gray": "#403C3C",
 }
 
 calico_light = {
-    "l_green":"#30BC5B",
-    "l_blue":"#38CCF7",
-    "l_yellow":"#FFAA00",
-    "l_red":"#D31642",
-    "l_gray":"#AAAAAA",
+    "l_green": "#30BC5B",
+    "l_blue": "#38CCF7",
+    "l_yellow": "#FFAA00",
+    "l_red": "#D31642",
+    "l_gray": "#AAAAAA",
 }
 
 calico_dark = {
-    "d_green":"#28A049",
-    "d_blue":"#05B5DD",
-    "d_yellow":"#FF8C00",
-    "d_red":"#B2143D",
-    "d_gray":"#403C3C",
+    "d_green": "#28A049",
+    "d_blue": "#05B5DD",
+    "d_yellow": "#FF8C00",
+    "d_red": "#B2143D",
+    "d_gray": "#403C3C",
 }
+
+# altair themese
+
+
+def calico_theme():
+    """
+    Calico Theme Using Mark OT Font
+
+    Usage:
+    >>> alt.themes.register('markot', calico_theme)
+    >>> alt.themes.enable('markot')
+    """
+    font = "Mark OT"
+
+    return {
+        "config": {
+            "title": {"font": font},
+            "axis": {"labelFont": font, "titleFont": font},
+        }
+    }
