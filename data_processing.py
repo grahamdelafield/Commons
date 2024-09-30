@@ -268,11 +268,21 @@ def insert_modification(sequence: str, motif: str, insertion: str):
     Parse the sequence and make insertion everywhere the motif is found.
     :arg sequence:  (str)   sequence to be parsed
     :arg motif:     (str)   motif that indicates where insertion should be made
+                            can be text or regular expression
     :arg insertion: (str)   the insertion that should be made after each motif
+
+    usage:
+        >>> sequnce = "GRAHAMDELAFIELDISAWESOME"
+        >>> motif = "D"
+        >>> insertion = "[+18]"
+
+        insert_modification(sequence, motif, insertion --> "GRAHAMD[+18]ELAFIELD[+18]ISAWESOME"
     """
 
+    recognition_pattern = re.compile(motif)
+    
     insertion = motif+insertion
 
-    new_sequence = re.sub(motif, insertion, sequence)
+    new_sequence = re.sub(recognition_pattern, insertion, sequence)
 
     return new_sequence
