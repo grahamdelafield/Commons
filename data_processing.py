@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import re
 from scipy.cluster import hierarchy
 from modlamp.descriptors import PeptideDescriptor
 
@@ -261,3 +262,17 @@ def sequence_logo_modifier(logo, peptide_length, **kwargs):
     logo.ax.set_title(kwargs.get("title", "Untitled Logo"), **hfont)
 
     return logo 
+
+def insert_modification(sequence: str, motif: str, insertion: str):
+    """
+    Parse the sequence and make insertion everywhere the motif is found.
+    :arg sequence:  (str)   sequence to be parsed
+    :arg motif:     (str)   motif that indicates where insertion should be made
+    :arg insertion: (str)   the insertion that should be made after each motif
+    """
+
+    insertion = motif+insertion
+
+    new_sequence = re.sub(motif, insertion, sequence)
+
+    return new_sequence
