@@ -276,7 +276,7 @@ def insert_modification(sequence: str, motif: str, insertion: str):
         >>> motif = "D"
         >>> insertion = "[+18]"
 
-        insert_modification(sequence, motif, insertion --> "GRAHAMD[+18]ELAFIELD[+18]ISAWESOME"
+        insert_modification(sequence, motif, insertion) --> "GRAHAMD[+18]ELAFIELD[+18]ISAWESOME"
     """
 
     recognition_pattern = re.compile(motif)
