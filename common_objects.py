@@ -91,7 +91,20 @@ calico_dark = {
     "d_gray": "#403C3C",
 }
 
-# altair themese
+d3_colors = {
+    "blue":"#1f77b4", # muted blue
+    "organge":"#ff7f0e", # safety orange
+    "green":"#2ca02c", # cooked asparagus green
+    "red":"#d62728", # brick red
+    "purple":"#9467bd", # muted purple
+    "brown":"#8c564b", # chestnut brown
+    "pink":"#e377c2", # raspberry yogurt pink
+    "gray":"#7f7f7f", # middle gray
+    "yellow":"#bcbd22", # curry yellow-green
+    "light_blue":"#17becf", # blue-teal
+}
+
+# altair themes
 
 
 def calico_theme():
