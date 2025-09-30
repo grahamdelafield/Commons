@@ -39,12 +39,17 @@ choice_colors = {
 }
 
 choice_pallet = {
-    "blue": "#2A385B",
-    "orange": "#AF4A06",
-    "green": "#6E9075",
-    "white": "#D6D6D6",
-    "rose": "##a58891",
-    "gray": "#727272",
+    'd_blue': '#2a385b',
+    'l_blue': '#5c6684',
+    'd_orange': '#af4a06',
+    'l_orange': '#e08a4e',
+    'd_green': '#6e9075',
+    'l_green': '#a1c2a8',
+    'l_gray': '#c2c2c2',
+    'white': '#f2f2f2',
+    'l_purple': '#a58891',
+    'd_purple': '#785963',
+    'd_gray': '#727272'
 }
 
 calico_colors = {
@@ -89,6 +94,20 @@ calico_dark = {
     "d_yellow": "#FF8C00",
     "d_red": "#B2143D",
     "d_gray": "#403C3C",
+}
+
+cal_palette = {
+    'l_green': '#4ea16e',
+    'd_green': '#247343',
+    'l_blue': '#6388b8',
+    'd_blue': '#476c9b',
+    'l_yellow': '#b55356',
+    'd_yellow': '#983b3f',
+    'l_red': '#efc150',
+    'd_red': '#dba52c',
+    'l_gray': '#AAAAAA',
+    'm_gray': '#6E6D6D',
+    'd_gray': '#403C3C'
 }
 
 d3_colors = {
