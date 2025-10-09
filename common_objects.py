@@ -97,17 +97,17 @@ calico_dark = {
 }
 
 cal_palette = {
-    'l_green': '#4ea16e',
     'd_green': '#247343',
-    'l_blue': '#6388b8',
+    'l_green': '#4ea16e',
     'd_blue': '#476c9b',
-    'l_yellow': '#b55356',
+    'l_blue': '#6388b8',
     'd_yellow': '#983b3f',
-    'l_red': '#efc150',
+    'l_yellow': '#b55356',
     'd_red': '#dba52c',
-    'l_gray': '#AAAAAA',
+    'l_red': '#efc150',
+    'd_gray': '#403C3C',
     'm_gray': '#6E6D6D',
-    'd_gray': '#403C3C'
+    'l_gray': '#AAAAAA',
 }
 
 d3_colors = {
