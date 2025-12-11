@@ -286,3 +286,13 @@ def insert_modification(sequence: str, motif: str, insertion: str):
     new_sequence = re.sub(recognition_pattern, insertion, sequence)
 
     return new_sequence
+
+fig_path = None
+def save_fig(fig, name, loc=fig_path, ext=".svg"):
+    """Save figure using altair saver."""
+    match ext:
+        case ".svg":
+            fig.save(str(loc)+f"/{name}{ext}")
+        case ".png":
+            fig.save(str(loc)+f"/{name}{ext}", scale_factor=5)
+    return 
