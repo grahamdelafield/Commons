@@ -20,6 +20,7 @@ sci_min_axis = alt.Axis(
     labelFontSize=14,
     labelFontWeight=600,
     labelFlush=False,
+    offset=5
 )
 
 volcano_legend = alt.Legend(
