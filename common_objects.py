@@ -140,7 +140,7 @@ tmt_channels = [
 # altair themes
 
 
-def calico_theme():
+def calico_theme(font):
     """
     Calico Theme Using Mark OT Font
 
@@ -148,11 +148,15 @@ def calico_theme():
     >>> alt.themes.register('markot', calico_theme)
     >>> alt.themes.enable('markot')
     """
-    font = "Mark OT"
+    # font = "Mark OT"
 
-    return {
-        "config": {
-            "title": {"font": font},
-            "axis": {"labelFont": font, "titleFont": font},
+    def theme_call():
+
+        return {
+            "config": {
+                "title": {"font": font},
+                "axis": {"labelFont": font, "titleFont": font},
+            }
         }
-    }
+    
+    return theme_call
