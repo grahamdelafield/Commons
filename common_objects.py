@@ -1,4 +1,7 @@
 import altair as alt
+import vega
+
+
 
 alt_axis = alt.Axis(labelFontSize=14, labelFontWeight=600, labelFlush=False)
 
@@ -160,3 +163,153 @@ def calico_theme(font):
         }
     
     return theme_call
+
+
+def graham_altair_theme():
+    markColor = "#2a385b"  # blue, fifth color from category palette
+    strokeColor = "#403C3C"
+    axisColor = "#000000"
+    backgroundColor = "#FFFFFF"
+    font = "Open Sans"
+    labelFont = "Open Sans"
+    sourceFont = "Open Sans"
+    gridColor = "#DEDDDD"
+    
+    # Okabe Ito colorblindsafe palette
+    # https://thenode.biologists.com/data-visualization-with-flying-colors/research/
+    category_palette = [
+            # '#2a385b',
+            '#5c6684',
+            # '#af4a06',
+            '#e08a4e',
+            '#6e9075',
+            # '#a1c2a8',
+            # '#c2c2c2',
+            # '#f2f2f2',
+            # '#a58891',
+            '#785963',
+            '#727272'
+                   ]
+    sequential_palette = [        
+            '#5c6684',
+            "#c2c2c2",
+            '#e08a4e',
+                         ],
+    return {
+        "width": 450,
+        "height": 200,   
+        "config": {
+            "title": {
+                "anchor": "start",
+                "dy": -15,
+                "fontSize": 18,
+                "font": font,
+                "fontColor": "#000000"
+            },
+            "axisX": {
+               "domain": True,
+               "domainColor": axisColor,
+               "domainWidth": 2,
+               "offset":2,
+               "grid": False,
+               "labelFontSize": 12,
+               "labelFont": labelFont,
+               "labelAngle": 0,
+               "labelOverlap": "parity",
+               "labelFontWeight":600,
+               "tickColor": axisColor,
+               "tickWidth":2,
+               "tickSize": 5,
+               "titleFontSize": 14,
+               "titlePadding": 10,
+               "titleFont": font,
+            #    "title": "",
+                "labelFlush":False
+           },
+           "axisY": {
+               "domain": False,
+               "domainWidth":2,
+               "domainColor":axisColor,
+            #    "offset":5,
+               "grid": True,
+               "gridColor": gridColor,
+               "gridWidth": 1,
+               "labelFontSize": 12,
+               "labelFont": labelFont,
+               "labelFontWeight":600,
+               "labelPadding": 8,
+               "tickColor":axisColor,
+               "ticks":False,
+               "tickWidth":2,
+               "tickSize":5,
+            #    "titleAlign": "left",
+            #    "titleAnchor": "start",
+               "titleFontSize": 14,
+               "titlePadding": 10,
+               "titleFont": font,
+            #    "titleAngle": 0,
+            #    "titleY": -15,
+            #    "titleX": 18,
+           },
+           "background": backgroundColor,
+           "legend": {
+               "labelFontSize": 12,
+               "labelFontWeight":600,
+               "labelFont": labelFont,
+               "symbolSize": 100,
+               "symbolType": "square",
+               "titleFontSize": 12,
+               "titlePadding": 10,
+               "titleFont": font,
+               "title": "",
+               "orient": "top-right",
+               "offset": 5,
+               "fillColor":"#FFFFFF",
+               "strokeColor":"#000000",
+               "strokeDash":[8,4],
+               "padding":5
+           },
+           "view": {
+               "stroke": "transparent",
+           },
+           "range": {
+               "category": category_palette,
+               "diverging": sequential_palette
+           },
+           "area": {
+               "fill": markColor,
+           },
+           "line": {
+               "color": markColor,
+               "stroke": markColor,
+               "strokewidth": 5,
+           },
+           "trail": {
+               "color": markColor,
+               "stroke": markColor,
+               "strokeWidth": 0,
+               "size": 1,
+           },
+           "path": {
+               "stroke": markColor,
+               "strokeWidth": 0.5,
+           },
+           "point": {
+               "filled": True,
+               "opacity":1,
+               "fill":"#FFFFFF"
+           },
+           "text": {
+               "font": sourceFont,
+               "color": markColor,
+               "fontSize": 11,
+               "align": "right",
+               "fontWeight": 400,
+               "size": 11,
+           }, 
+           "bar": {
+                "fill": markColor,
+                "stroke": strokeColor,
+            }, 
+       },
+    }
