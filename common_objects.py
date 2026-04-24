@@ -166,7 +166,7 @@ def calico_theme(font):
 
 
 def graham_altair_theme():
-    markColor = "#2a385b"  # blue, fifth color from category palette
+    markColor = "#5c6684"  # blue, fifth color from category palette
     strokeColor = "#403C3C"
     axisColor = "#000000"
     backgroundColor = "#FFFFFF"
@@ -297,6 +297,7 @@ def graham_altair_theme():
            "point": {
                "filled": True,
                "opacity":1,
+               "stroke":markColor,
                "fill":"#FFFFFF"
            },
            "text": {
