@@ -200,7 +200,7 @@ def graham_altair_theme():
         "height": 200,   
         "config": {
             "title": {
-                "anchor": "start",
+                "anchor": "center",
                 "dy": -15,
                 "fontSize": 18,
                 "font": font,
