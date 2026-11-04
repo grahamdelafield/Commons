@@ -1,8 +1,6 @@
 import altair as alt
 import vega
 
-
-
 alt_axis = alt.Axis(labelFontSize=14, labelFontWeight=600, labelFlush=False)
 
 nominal_axis = alt.Axis(
@@ -23,7 +21,7 @@ sci_min_axis = alt.Axis(
     labelFontSize=14,
     labelFontWeight=600,
     labelFlush=False,
-    offset=5
+    offset=5,
 )
 
 volcano_legend = alt.Legend(
@@ -43,17 +41,17 @@ choice_colors = {
 }
 
 choice_pallet = {
-    'd_blue': '#2a385b',
-    'l_blue': '#5c6684',
-    'd_orange': '#af4a06',
-    'l_orange': '#e08a4e',
-    'd_green': '#6e9075',
-    'l_green': '#a1c2a8',
-    'l_gray': '#c2c2c2',
-    'white': '#f2f2f2',
-    'l_purple': '#a58891',
-    'd_purple': '#785963',
-    'd_gray': '#727272'
+    "d_blue": "#2a385b",
+    "l_blue": "#5c6684",
+    "d_orange": "#af4a06",
+    "l_orange": "#e08a4e",
+    "d_green": "#6e9075",
+    "l_green": "#a1c2a8",
+    "l_gray": "#c2c2c2",
+    "white": "#f2f2f2",
+    "l_purple": "#a58891",
+    "d_purple": "#785963",
+    "d_gray": "#727272",
 }
 
 calico_colors = {
@@ -101,43 +99,51 @@ calico_dark = {
 }
 
 cal_palette = {
-    'd_green': '#247343',
-    'l_green': '#4ea16e',
-    'd_blue': '#476c9b',
-    'l_blue': '#6388b8',
-    'd_red': '#983b3f',
-    'l_red': '#b55356',
-    'd_yellow': '#dba52c',
-    'l_yellow': '#efc150',
-    'd_gray': '#403C3C',
-    'm_gray': '#6E6D6D',
-    'l_gray': '#AAAAAA',
+    "d_green": "#247343",
+    "l_green": "#4ea16e",
+    "d_blue": "#476c9b",
+    "l_blue": "#6388b8",
+    "d_red": "#983b3f",
+    "l_red": "#b55356",
+    "d_yellow": "#dba52c",
+    "l_yellow": "#efc150",
+    "d_gray": "#403C3C",
+    "m_gray": "#6E6D6D",
+    "l_gray": "#AAAAAA",
 }
 
 d3_colors = {
-    "blue":"#1f77b4", # muted blue
-    "organge":"#ff7f0e", # safety orange
-    "green":"#2ca02c", # cooked asparagus green
-    "red":"#d62728", # brick red
-    "purple":"#9467bd", # muted purple
-    "brown":"#8c564b", # chestnut brown
-    "pink":"#e377c2", # raspberry yogurt pink
-    "gray":"#7f7f7f", # middle gray
-    "yellow":"#bcbd22", # curry yellow-green
-    "light_blue":"#17becf", # blue-teal
+    "blue": "#1f77b4",  # muted blue
+    "organge": "#ff7f0e",  # safety orange
+    "green": "#2ca02c",  # cooked asparagus green
+    "red": "#d62728",  # brick red
+    "purple": "#9467bd",  # muted purple
+    "brown": "#8c564b",  # chestnut brown
+    "pink": "#e377c2",  # raspberry yogurt pink
+    "gray": "#7f7f7f",  # middle gray
+    "yellow": "#bcbd22",  # curry yellow-green
+    "light_blue": "#17becf",  # blue-teal
 }
 
 tmt_channels = [
     "126",
-    "127n", "127c",
-    "128n", "128c",
-    "129n", "129c",
-    "130n", "130c",
-    "131n", "131c",
-    "132n", "132c",
-    "133n", "133c",
-    "134n", "134c",
-    "135n"
+    "127n",
+    "127c",
+    "128n",
+    "128c",
+    "129n",
+    "129c",
+    "130n",
+    "130c",
+    "131n",
+    "131c",
+    "132n",
+    "132c",
+    "133n",
+    "133c",
+    "134n",
+    "134c",
+    "135n",
 ]
 
 # altair themes
@@ -161,7 +167,7 @@ def calico_theme(font):
                 "axis": {"labelFont": font, "titleFont": font},
             }
         }
-    
+
     return theme_call
 
 
@@ -174,143 +180,158 @@ def graham_altair_theme():
     labelFont = "Open Sans"
     sourceFont = "Open Sans"
     gridColor = "#DEDDDD"
-    
+
     # Okabe Ito colorblindsafe palette
     # https://thenode.biologists.com/data-visualization-with-flying-colors/research/
     category_palette = [
-            # '#2a385b',
-            '#5c6684',
-            # '#af4a06',
-            '#e08a4e',
-            '#6e9075',
-            # '#a1c2a8',
-            # '#c2c2c2',
-            # '#f2f2f2',
-            # '#a58891',
-            '#785963',
-            '#727272'
-                   ]
-    sequential_palette = [        
-            '#5c6684',
-            "#c2c2c2",
-            '#e08a4e',
-                         ],
+        # '#2a385b',
+        "#5c6684",
+        # '#af4a06',
+        "#e08a4e",
+        "#6e9075",
+        # '#a1c2a8',
+        # '#c2c2c2',
+        # '#f2f2f2',
+        # '#a58891',
+        "#785963",
+        "#727272",
+    ]
+    ordinal_palette = [
+        "#495473",
+        "#5c6785",
+        "#657092",
+        "#6c789c",
+        "#7582a9",
+        "#8392bd",
+        "#9cabd8",
+        "#a7b7de",
+        "#abbae0",
+        "#bdc9e7",
+    ]
+    sequential_palette = [
+        "#5c6684",
+        "#c2c2c2",
+        "#e08a4e",
+    ]
     return {
         "width": 450,
-        "height": 200,   
+        "height": 200,
         "config": {
             "title": {
                 "anchor": "center",
                 "dy": -15,
                 "fontSize": 18,
                 "font": font,
-                "fontColor": "#000000"
+                "fontColor": "#000000",
             },
             "axisX": {
-               "domain": True,
-               "domainColor": axisColor,
-               "domainWidth": 2,
-               "offset":2,
-               "grid": False,
-               "labelFontSize": 12,
-               "labelFont": labelFont,
-               "labelAngle": 0,
-               "labelOverlap": "parity",
-               "labelFontWeight":600,
-               "tickColor": axisColor,
-               "tickWidth":2,
-               "tickSize": 5,
-               "titleFontSize": 14,
-               "titlePadding": 10,
-               "titleFont": font,
-            #    "title": "",
-                "labelFlush":False
-           },
-           "axisY": {
-               "domain": False,
-               "domainWidth":2,
-               "domainColor":axisColor,
-            #    "offset":5,
-               "grid": True,
-               "gridColor": gridColor,
-               "gridWidth": 1,
-               "labelFontSize": 12,
-               "labelFont": labelFont,
-               "labelFontWeight":600,
-               "labelPadding": 8,
-               "tickColor":axisColor,
-               "ticks":False,
-               "tickWidth":2,
-               "tickSize":5,
-            #    "titleAlign": "left",
-            #    "titleAnchor": "start",
-               "titleFontSize": 14,
-               "titlePadding": 10,
-               "titleFont": font,
-            #    "titleAngle": 0,
-            #    "titleY": -15,
-            #    "titleX": 18,
-           },
-           "background": backgroundColor,
-           "legend": {
-               "labelFontSize": 12,
-               "labelFontWeight":600,
-               "labelFont": labelFont,
-               "symbolSize": 100,
-               "symbolType": "square",
-               "titleFontSize": 12,
-               "titlePadding": 10,
-               "titleFont": font,
-               "title": "",
-            #    "orient": "top-right",
-            #    "offset": 5,
-               "fillColor":"#FFFFFF",
-               "strokeColor":"#000000",
-               "strokeDash":[8,4],
-               "padding":5
-           },
-           "view": {
-               "stroke": "transparent",
-           },
-           "range": {
-               "category": category_palette,
-               "diverging": sequential_palette
-           },
-           "area": {
-               "fill": markColor,
-           },
-           "line": {
-               "color": markColor,
-               "stroke": markColor,
-               "strokewidth": 5,
-           },
-           "trail": {
-               "color": markColor,
-               "stroke": markColor,
-               "strokeWidth": 0,
-               "size": 1,
-           },
-           "path": {
-               "stroke": markColor,
-               "strokeWidth": 0.5,
-           },
-           "point": {
-               "filled": True,
-               "opacity":1,
-               "stroke":markColor,
-               "fill":"#FFFFFF"
-           },
-           "text": {
-               "font": sourceFont,
-               "color": markColor,
-               "fontSize": 11,
-               "align": "right",
-               "fontWeight": 400,
-               "size": 11,
-           }, 
-           "bar": {
+                "domain": True,
+                "domainColor": axisColor,
+                "domainWidth": 2,
+                "offset": 2,
+                "grid": False,
+                "labelFontSize": 12,
+                "labelFont": labelFont,
+                "labelAngle": 0,
+                "labelOverlap": "parity",
+                "labelFontWeight": 600,
+                "tickColor": axisColor,
+                "tickWidth": 2,
+                "tickSize": 5,
+                "titleFontSize": 14,
+                "titlePadding": 10,
+                "titleFont": font,
+                #    "title": "",
+                "labelFlush": False,
+            },
+            "axisY": {
+                "domain": False,
+                "domainWidth": 2,
+                "domainColor": axisColor,
+                #    "offset":5,
+                "grid": True,
+                "gridColor": gridColor,
+                "gridWidth": 1,
+                "labelFontSize": 12,
+                "labelFont": labelFont,
+                "labelFontWeight": 600,
+                "labelPadding": 8,
+                "tickColor": axisColor,
+                "ticks": False,
+                "tickWidth": 2,
+                "tickSize": 5,
+                #    "titleAlign": "left",
+                #    "titleAnchor": "start",
+                "titleFontSize": 14,
+                "titlePadding": 10,
+                "titleFont": font,
+                #    "titleAngle": 0,
+                #    "titleY": -15,
+                #    "titleX": 18,
+            },
+            "background": backgroundColor,
+            "legend": {
+                "labelFontSize": 12,
+                "labelFontWeight": 600,
+                "labelFont": labelFont,
+                "symbolSize": 100,
+                "symbolType": "square",
+                "titleFontSize": 12,
+                "titlePadding": 10,
+                "titleFont": font,
+                "title": "",
+                #    "orient": "top-right",
+                #    "offset": 5,
+                "fillColor": "#FFFFFF",
+                "strokeColor": "#000000",
+                "strokeDash": [8, 4],
+                "padding": 5,
+            },
+            "view": {
+                "stroke": "transparent",
+            },
+            "range": {
+                "category": category_palette,
+                "ordinal": ordinal_palette,
+                "ramp": sequential_palette,
+                "diverging": sequential_palette,
+                "heatmap": sequential_palette,
+            },
+            "area": {
+                "fill": markColor,
+            },
+            "line": {
+                "color": markColor,
+                "stroke": markColor,
+                "strokewidth": 5,
+            },
+            "trail": {
+                "color": markColor,
+                "stroke": markColor,
+                "strokeWidth": 0,
+                "size": 1,
+            },
+            "path": {
+                "stroke": markColor,
+                "strokeWidth": 0.5,
+            },
+            "point": {
+                "filled": True,
+                "opacity": 1,
+                "stroke": markColor,
+                "fill": "#FFFFFF",
+            },
+            "text": {
+                "font": sourceFont,
+                "color": markColor,
+                "fontSize": 11,
+                "align": "right",
+                "fontWeight": 400,
+                "size": 11,
+            },
+            "bar": {
                 "fill": markColor,
                 "stroke": strokeColor,
-            }, 
-       },
+            },
+        },
     }
